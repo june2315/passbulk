@@ -20,9 +20,13 @@ import AddPassword from './AddPassword';
 
 import { useSetState } from 'ahooks';
 
+import { invoke } from '@tauri-apps/api/tauri';
+import { useEffect } from 'react';
+
 export default function Passwords() {
     const [state, setState] = useSetState({
         addModalOpen: false,
+        addSubmitLoading: false,
         dataSource: [
             {
                 name: 'test',
@@ -31,8 +35,45 @@ export default function Passwords() {
         ],
     });
 
+    function parseResponse(res: any) {
+        try {
+            return JSON.parse(res);
+        } catch (err) {
+            console.log('err', err);
+            return null;
+        }
+    }
+
+    function setParseResponse(res: any) {
+        const dataSource = parseResponse(res);
+        if (dataSource) {
+            setState({ dataSource });
+        }
+    }
+
+    function queryList() {
+        invoke('query').then((res: any) => setParseResponse(res));
+    }
+
+    function saveValues(values: any) {
+        return invoke('save', values).then((res: any) => setParseResponse(res));
+    }
+
+    useEffect(() => {
+        if (window.__TAURI__) {
+            queryList();
+        }
+    }, []);
+
     const handleAdd = () => {
         setState({ addModalOpen: true });
+    };
+
+    const handleAddOk = (values: any) => {
+        // console.log(values);
+        return saveValues(values).then(
+            () => new Promise<void>((resolve) => setTimeout(resolve, 300))
+        );
     };
 
     return (
@@ -47,6 +88,7 @@ export default function Passwords() {
                             primary
                             className="pr-4 "
                             onClick={handleAdd}
+                            // loading
                         >
                             create
                         </Button>
@@ -95,7 +137,7 @@ export default function Passwords() {
 
                     <Table
                         columns={[
-                            { title: 'Name', dataIndex: 'name', width: 220 },
+                            { title: 'Name', dataIndex: 'name', width: 120 },
                             {
                                 title: 'Password',
                                 dataIndex: 'password',
@@ -103,7 +145,7 @@ export default function Passwords() {
                                 render: () => (
                                     <div className="flex space-x-3 items-center">
                                         <span className="block hover:text-primary-red text-lg tracking-tighter cursor-pointer leading-none">
-                                            ﹡﹡﹡﹡﹡﹡﹡﹡
+                                            ﹡﹡﹡﹡﹡﹡
                                         </span>
                                         <i className="cursor-pointer hover-icon-primary">
                                             {eyeIcon}
@@ -111,15 +153,16 @@ export default function Passwords() {
                                     </div>
                                 ),
                             },
-                            { title: 'URI', dataIndex: 'uri', width: 300 },
+                            { title: 'URI', dataIndex: 'uri', width: 260 },
                             {
                                 title: 'Username',
                                 dataIndex: 'username',
-                                width: 200,
+                                width: 180,
                             },
                             {
                                 title: 'Modified',
                                 dataIndex: 'modified',
+                                width: 200,
                             },
                         ]}
                         rowSelection={{}}
@@ -129,6 +172,8 @@ export default function Passwords() {
                 <AddPassword
                     open={state.addModalOpen}
                     onClose={() => setState({ addModalOpen: false })}
+                    onOk={handleAddOk}
+                    okLoading={state.addSubmitLoading}
                 />
             </div>
         </div>

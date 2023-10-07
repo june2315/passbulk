@@ -1,7 +1,17 @@
 import classNames from 'classnames';
+import Button from './Button';
 
 export default function Modal(props: any) {
-    const { title, children, cancelText, okText, open, onClose } = props;
+    const {
+        title,
+        children,
+        cancelText,
+        okText,
+        open,
+        onClose,
+        onOk,
+        okButtonProps = {},
+    } = props;
     // const [state, setState] = useSetState({});
     return (
         <div className={classNames(open ? 'block' : 'hidden')}>
@@ -43,12 +53,10 @@ export default function Modal(props: any) {
                         >
                             {cancelText || 'Cancel'}
                         </button>
-                        <button
-                            type="button"
-                            className="rounded-sm border border-primary-500 bg-primary-500 px-4 py-2 text-center text-sm font-medium text-white shadow-sm transition-all hover:border-primary-700 hover:bg-primary-700 focus:ring focus:ring-primary-500/50 disabled:cursor-not-allowed disabled:border-primary-300 disabled:bg-primary-300"
-                        >
+
+                        <Button {...okButtonProps} primary className="h-[40px] px-4 rounded-sm" onClick={onOk}>
                             {okText || 'Confirm'}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
