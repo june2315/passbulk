@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    min-height: 100vh;
+}
+
+.hover-icon-primary:hover svg path {
+    stroke: #3c82f6;
+}
