@@ -4,7 +4,7 @@ import { useSetState } from 'ahooks';
 import { useEffect, useRef } from 'react';
 
 export default function Dropdown(props: any) {
-    const { items = [] } = props;
+    const { disabled, items = [] } = props;
 
     const dropdownRef: any = useRef();
     const wrapRef: any = useRef();
@@ -39,23 +39,33 @@ export default function Dropdown(props: any) {
     }, [state.isOpen]);
 
     const toggleOpen = (event: any) => {
+        if (disabled) return;
         event.stopPropagation();
         setState({ isOpen: !state.isOpen });
+    };
+
+    const handleItemClick = (record: any, i: number, e: any) => {
+        if (record.onClick) {
+            record.onClick?.(i, e);
+        }
     };
 
     return (
         <div
             ref={wrapRef}
             className={classNames(
-                'capitalize text-center rounded-md text-sm font-medium text-white shadow-sm transition-colors active:border-zinc-900 active:bg-zinc-900 active:shadow-none focus:border-sky-500 focus:shadow-search focus:shadow-sky-400 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300',
+                'capitalize text-center rounded-md text-sm font-medium text-white shadow-sm transition-colors  ',
+                disabled
+                    ? 'cursor-not-allowed opacity-60'
+                    : 'active:border-zinc-900 active:bg-zinc-900 active:shadow-none focus:border-sky-500 focus:shadow-search focus:shadow-sky-400',
                 'relative',
-                state.isOpen ? 'rounded-b-none border-b-0' : ''
+                state.isOpen ? 'rounded-b-none' : ''
             )}
         >
             <div
                 className={classNames(
                     'flex items-center px-3 py-2 rounded-md border border-zinc-950/50 bg-zinc-700/50 box-border',
-                    state.isOpen ? 'rounded-b-none border-b-0' : ''
+                    state.isOpen ? 'rounded-b-none border-b-transparent' : ''
                 )}
                 onClick={toggleOpen}
             >
@@ -96,6 +106,7 @@ export default function Dropdown(props: any) {
                         className={classNames(
                             'capitalize p-4 py-2 cursor-pointer text-[15px] hover:bg-zinc-700/75 border-1-top'
                         )}
+                        onClick={(e) => handleItemClick(d, i, e)}
                     >
                         {d.label}
                     </div>

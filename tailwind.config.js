@@ -12,7 +12,7 @@ export default {
             },
             colors: {
                 'search-gray': '#2C2C2C',
-                'primary-red': '#AC1E11',
+                'primary-red': '#D40101',
                 primary: colors.blue,
                 secondary: colors.slate,
             },

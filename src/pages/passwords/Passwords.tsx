@@ -5,6 +5,7 @@ import Dropdown from '../../components/Dropdown';
 import Aside from '../../components/Aside';
 import BreadCrumb from '../../components/BreadCrumb';
 import Table from '../../components/Table';
+import Modal from '../../components/Modal';
 import {
     copyIcon,
     editIcon,
@@ -19,17 +20,27 @@ import {
 import AddPassword from './AddPassword';
 
 import { useSetState } from 'ahooks';
+import { isEqual } from 'lodash-es';
 
 import { invoke } from '@tauri-apps/api/tauri';
 import { useEffect } from 'react';
 
 export default function Passwords() {
-    const [state, setState] = useSetState({
+    const [state, setState]: any = useSetState({
         addModalOpen: false,
+        deleteConfirmOpen: false,
         addSubmitLoading: false,
+        deleteLoading: false,
+        selectedRowKeys: [],
         dataSource: [
             {
+                id: 1,
                 name: 'test',
+                username: 'admin',
+            },
+            {
+                id: 2,
+                name: 'test2',
                 username: 'admin',
             },
         ],
@@ -40,23 +51,37 @@ export default function Passwords() {
             return JSON.parse(res);
         } catch (err) {
             console.log('err', err);
-            return null;
+            return Promise.reject(err);
         }
     }
 
     function setParseResponse(res: any) {
         const dataSource = parseResponse(res);
+        console.log('dataSource', dataSource);
+
         if (dataSource) {
             setState({ dataSource });
         }
+        return dataSource;
     }
 
     function queryList() {
-        invoke('query').then((res: any) => setParseResponse(res));
+        return invoke('query').then((res: any) => setParseResponse(res));
     }
 
     function saveValues(values: any) {
-        return invoke('save', values).then((res: any) => setParseResponse(res));
+        return invoke('save', { data: JSON.stringify(values) })
+            .then((res: any) => setParseResponse(res))
+            .catch((err: any) => {
+                console.log(err);
+                return Promise.reject(err);
+            });
+    }
+
+    function updateItem(record: any) {}
+
+    function deleteItems(ids: string) {
+        return invoke('batch_delete', { ids });
     }
 
     useEffect(() => {
@@ -74,6 +99,38 @@ export default function Passwords() {
         return saveValues(values).then(
             () => new Promise<void>((resolve) => setTimeout(resolve, 300))
         );
+    };
+
+    const handleDelete = () => {
+        setState({ deleteConfirmOpen: true });
+    };
+
+    const handleDeleteOk = () => {
+        const { selectedRowKeys } = state;
+        // console.log(selectedRowKeys);
+        setState({ deleteLoading: true });
+        deleteItems(selectedRowKeys.join(',')).then(() =>
+            setTimeout(() => {
+                queryList();
+                setState({ deleteConfirmOpen: false, deleteLoading: false });
+            }, 300)
+        );
+    };
+
+    const handleRowChange = (selectedRowKeys: any[]) => {
+        setState({ selectedRowKeys: Array.from(selectedRowKeys) });
+    };
+
+    /**
+     * @param record
+     * @param selected [是否已选中]
+     */
+    const handleRowSelect = (record: any, selected: boolean) => {
+        let selectedRowKeys: any[] = [];
+        if (state.selectedRowKeys.length > 1 || selected) {
+            selectedRowKeys = [record.id];
+        }
+        setState({ selectedRowKeys });
     };
 
     return (
@@ -104,19 +161,39 @@ export default function Passwords() {
             >
                 <ButtonGroup>
                     {[
-                        <Button key="copy" icon={copyIcon}>
+                        <Button
+                            key="copy"
+                            icon={copyIcon}
+                            disabled={state.selectedRowKeys.length !== 1}
+                        >
                             copy
                         </Button>,
-                        <Button key="edit" icon={editIcon}>
+                        <Button
+                            key="edit"
+                            icon={editIcon}
+                            disabled={state.selectedRowKeys.length !== 1}
+                        >
                             edit
                         </Button>,
-                        <Button key="share" icon={shareIcon}>
+                        <Button
+                            key="share"
+                            icon={shareIcon}
+                            disabled={state.selectedRowKeys.length < 1}
+                        >
                             share
                         </Button>,
-                        <Button key="export" icon={exportIcon}>
+                        <Button
+                            key="export"
+                            icon={exportIcon}
+                            disabled={state.selectedRowKeys.length < 1}
+                        >
                             export
                         </Button>,
-                        <Dropdown key="more" items={[]}>
+                        <Dropdown
+                            key="more"
+                            items={[{ label: 'Delete', onClick: handleDelete }]}
+                            disabled={state.selectedRowKeys.length < 1}
+                        >
                             more
                         </Dropdown>,
                     ]}
@@ -144,7 +221,7 @@ export default function Passwords() {
                                 width: 240,
                                 render: () => (
                                     <div className="flex space-x-3 items-center">
-                                        <span className="block hover:text-primary-red text-lg tracking-tighter cursor-pointer leading-none">
+                                        <span className="block hover:text-primary-red text-base font-bold tracking-tighter cursor-pointer leading-none">
                                             ﹡﹡﹡﹡﹡﹡
                                         </span>
                                         <i className="cursor-pointer hover-icon-primary">
@@ -165,7 +242,12 @@ export default function Passwords() {
                                 width: 200,
                             },
                         ]}
-                        rowSelection={{}}
+                        rowSelection={{
+                            selectedRowKeys: state.selectedRowKeys,
+                            onChange: handleRowChange,
+                            onSelect: handleRowSelect,
+                        }}
+                        contextMenu={{}}
                         dataSource={state.dataSource}
                     />
                 </main>
@@ -175,6 +257,29 @@ export default function Passwords() {
                     onOk={handleAddOk}
                     okLoading={state.addSubmitLoading}
                 />
+
+                <Modal
+                    title="Delete password?"
+                    okText="delete"
+                    top={20}
+                    open={state.deleteConfirmOpen}
+                    onClose={() => setState({ deleteConfirmOpen: false })}
+                    okButtonProps={{
+                        danger: true,
+                        loading: state.deleteLoading,
+                    }}
+                    onOk={handleDeleteOk}
+                >
+                    <p className="text-base">
+                        Are you sure you want to delete the password test?
+                    </p>
+                    <br />
+                    <p className="text-base">
+                        Once the password is deleted, it’ll be removed
+                        permanently and will not be recoverable.
+                    </p>
+                    <br />
+                </Modal>
             </div>
         </div>
     );

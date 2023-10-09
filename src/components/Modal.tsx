@@ -4,6 +4,7 @@ import Button from './Button';
 export default function Modal(props: any) {
     const {
         title,
+        top,
         children,
         cancelText,
         okText,
@@ -19,8 +20,17 @@ export default function Modal(props: any) {
                 className="fixed inset-0 z-10 bg-secondary-700/50"
                 onClick={onClose}
             ></div>
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
-                <div className="mx-auto overflow-hidden rounded-sm bg-white dark:bg-neutral-800 dark:text-white shadow-xl sm:w-full sm:max-w-[520px]">
+            <div
+                className={classNames(
+                    'fixed inset-0 z-50 flex justify-center p-4 sm:p-0'
+                )}
+            >
+                <div
+                    className={classNames(
+                        'absolute mx-auto overflow-hidden rounded-sm bg-white dark:bg-neutral-800 dark:text-white shadow-xl sm:w-full sm:max-w-[520px]',
+                        top ? `top-[${top}px]` : 'top-1/2 translate-y-[-50%]'
+                    )}
+                >
                     <div className="relative p-4 dark:bg-neutral-700">
                         <button
                             type="button"
@@ -54,7 +64,12 @@ export default function Modal(props: any) {
                             {cancelText || 'Cancel'}
                         </button>
 
-                        <Button {...okButtonProps} primary className="h-[40px] px-4 rounded-sm" onClick={onOk}>
+                        <Button
+                            {...okButtonProps}
+                            primary
+                            className="h-[40px] px-4 rounded-sm"
+                            onClick={onOk}
+                        >
                             {okText || 'Confirm'}
                         </Button>
                     </div>
