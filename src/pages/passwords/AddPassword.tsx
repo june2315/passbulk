@@ -2,6 +2,7 @@ import Modal from '../../components/Modal';
 import Input from '../../components/Input';
 import TextArea from '../../components/TextArea';
 import FormItem from '../../components/FormItem';
+import Form from '../../components/Form';
 import Button from '../../components/Button';
 import { tuning, randomIcon, eyeIcon, eyeOff } from '../../components/Icons';
 import { useSetState } from 'ahooks';
@@ -20,7 +21,7 @@ export default function AddPassword(props: any) {
         if (open) {
             setState({ values: {} });
         }
-    }, []);
+    }, [open]);
 
     const togglePasswordVisible = () => {
         setState({ passwordVisible: !state.passwordVisible });
@@ -33,11 +34,6 @@ export default function AddPassword(props: any) {
     };
 
     const handleOk = () => {
-        // setState({ okLoading: true });
-
-        // setTimeout(() => {
-        //     setState({ okLoading: false });
-        // }, 1500);
         const res = onOk?.(state.values);
         if (res instanceof Promise) {
             setState({ okLoading: true });
@@ -56,7 +52,7 @@ export default function AddPassword(props: any) {
             okText="Create"
             okButtonProps={{ loading: state.okLoading }}
         >
-            <form>
+            <Form>
                 <FormItem label="Name" name="name" required>
                     <Input
                         placeholder="Name"
@@ -124,7 +120,7 @@ export default function AddPassword(props: any) {
                         }
                     />
                 </FormItem>
-            </form>
+            </Form>
         </Modal>
     );
 }

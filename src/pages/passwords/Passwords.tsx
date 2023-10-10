@@ -6,6 +6,7 @@ import Aside from '../../components/Aside';
 import BreadCrumb from '../../components/BreadCrumb';
 import Table from '../../components/Table';
 import Modal from '../../components/Modal';
+import Message from '../../components/Message/Message';
 import {
     copyIcon,
     editIcon,
@@ -16,14 +17,17 @@ import {
     infoIcon,
     columnIcon,
     eyeIcon,
+    eyeOff,
 } from '../../components/Icons';
 import AddPassword from './AddPassword';
 
 import { useSetState } from 'ahooks';
-import { isEqual } from 'lodash-es';
+// import { isEqual } from 'lodash-es';
 
 import { invoke } from '@tauri-apps/api/tauri';
+import { writeText } from '@tauri-apps/api/clipboard';
 import { useEffect } from 'react';
+import classNames from 'classnames';
 
 export default function Passwords() {
     const [state, setState]: any = useSetState({
@@ -32,16 +36,19 @@ export default function Passwords() {
         addSubmitLoading: false,
         deleteLoading: false,
         selectedRowKeys: [],
+        passwordMap: {},
         dataSource: [
             {
                 id: 1,
                 name: 'test',
                 username: 'admin',
+                password: '123',
             },
             {
                 id: 2,
                 name: 'test2',
                 username: 'admin',
+                password: 'abc',
             },
         ],
     });
@@ -65,23 +72,27 @@ export default function Passwords() {
         return dataSource;
     }
 
-    function queryList() {
-        return invoke('query').then((res: any) => setParseResponse(res));
+    function queryList(query_params: any = {}) {
+        return invoke('query', { data: JSON.stringify(query_params) }).then(
+            (res: any) => setParseResponse(res)
+        );
     }
 
     function saveValues(values: any) {
-        return invoke('save', { data: JSON.stringify(values) })
-            .then((res: any) => setParseResponse(res))
-            .catch((err: any) => {
+        return invoke('save', { data: JSON.stringify(values) }).catch(
+            (err: any) => {
                 console.log(err);
                 return Promise.reject(err);
-            });
+            }
+        );
     }
-
-    function updateItem(record: any) {}
 
     function deleteItems(ids: string) {
         return invoke('batch_delete', { ids });
+    }
+
+    async function decryptPassword(id: string) {
+        return invoke('decrypt_password', { id });
     }
 
     useEffect(() => {
@@ -97,7 +108,11 @@ export default function Passwords() {
     const handleAddOk = (values: any) => {
         // console.log(values);
         return saveValues(values).then(
-            () => new Promise<void>((resolve) => setTimeout(resolve, 300))
+            () =>
+                new Promise<void>((resolve) => {
+                    queryList();
+                    setTimeout(resolve, 300);
+                })
         );
     };
 
@@ -133,6 +148,38 @@ export default function Passwords() {
         setState({ selectedRowKeys });
     };
 
+    const handleCopyPassword = () => {
+        Message.success('已复制到剪切板');
+        const record = state.dataSource.find((d: any) =>
+            state.selectedRowKeys.includes(d.id)
+        );
+        if (!record) return;
+        if (state.passwordMap[record.id]) {
+            writeText(state.passwordMap[record.id]).then(() => {
+                console.log(12);
+                // Message.success('已复制到剪切板');
+            });
+        } else {
+            decryptPassword(record.id.toString())
+                .then((password: any) => writeText(password))
+                .then(() => {
+                    console.log(12);
+                    // Message.success('已复制到剪切板');
+                });
+        }
+    };
+
+    const handleShowPassword = (record: any) => {
+        let { passwordMap } = state;
+
+        passwordMap[record.id] = passwordMap[record.id]
+            ? null
+            : record.password;
+
+        // console.log(passwordMap);
+        setState({ passwordMap });
+    };
+
     return (
         <div>
             <ActionBar
@@ -165,6 +212,7 @@ export default function Passwords() {
                             key="copy"
                             icon={copyIcon}
                             disabled={state.selectedRowKeys.length !== 1}
+                            onClick={handleCopyPassword}
                         >
                             copy
                         </Button>,
@@ -219,16 +267,44 @@ export default function Passwords() {
                                 title: 'Password',
                                 dataIndex: 'password',
                                 width: 240,
-                                render: () => (
-                                    <div className="flex space-x-3 items-center">
-                                        <span className="block hover:text-primary-red text-base font-bold tracking-tighter cursor-pointer leading-none">
-                                            ﹡﹡﹡﹡﹡﹡
-                                        </span>
-                                        <i className="cursor-pointer hover-icon-primary">
-                                            {eyeIcon}
-                                        </i>
-                                    </div>
-                                ),
+                                render: (text: any, record: any) => {
+                                    const showPassword =
+                                        state.passwordMap[record.id];
+                                    return (
+                                        <div
+                                            className="group flex space-x-3 items-center min-h-[22px]"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <div
+                                                // onClick={() =>
+                                                //     handleCopyPassword(record)
+                                                // }
+                                                className="text-base leading-none "
+                                            >
+                                                {showPassword ? (
+                                                    <span className="inline-block pointer-events-none">
+                                                        {text}
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-block hover:text-primary-red font-bold tracking-tighter cursor-pointer">
+                                                        ﹡﹡﹡﹡﹡﹡
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <i
+                                                className="cursor-pointer hover-icon-primary hidden group-hover:inline-block"
+                                                onClick={() =>
+                                                    handleShowPassword(record)
+                                                }
+                                            >
+                                                {showPassword
+                                                    ? eyeOff
+                                                    : eyeIcon}
+                                            </i>
+                                        </div>
+                                    );
+                                },
                             },
                             { title: 'URI', dataIndex: 'uri', width: 260 },
                             {

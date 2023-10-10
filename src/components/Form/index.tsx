@@ -4,9 +4,9 @@ import FormContext from './formContext';
 export default function Form({ onFinish, children }: any) {
     const [formInstance] = useForm();
 
-    formInstance.setCallbacks({
-        onFinish,
-    });
+    // formInstance.setCallbacks({
+    //     onFinish,
+    // });
 
     return (
         <form
