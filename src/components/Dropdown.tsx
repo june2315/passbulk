@@ -55,25 +55,27 @@ export default function Dropdown(props: any) {
             ref={wrapRef}
             className={classNames(
                 'capitalize text-center rounded-md text-sm font-medium text-white shadow-sm transition-colors  ',
-                disabled
-                    ? 'cursor-not-allowed opacity-60'
-                    : 'active:border-zinc-900 active:bg-zinc-900 active:shadow-none focus:border-sky-500 focus:shadow-search focus:shadow-sky-400',
                 'relative',
                 state.isOpen ? 'rounded-b-none' : ''
             )}
         >
             <div
                 className={classNames(
-                    'flex items-center px-3 py-2 rounded-md border border-zinc-950/50 bg-zinc-700/50 box-border',
-                    state.isOpen ? 'rounded-b-none border-b-transparent' : ''
+                    'px-3 py-2 rounded-md border border-zinc-950/50 bg-zinc-700/50 box-border',
+                    state.isOpen ? 'rounded-b-none border-b-transparent' : '',
+                    disabled
+                        ? 'cursor-not-allowed opacity-60'
+                        : 'active:border-zinc-900 active:bg-zinc-900 active:shadow-none focus:border-sky-500 focus:shadow-search focus:shadow-sky-400'
                 )}
                 onClick={toggleOpen}
             >
-                <div>{props.icon}</div>
-                <div className={classNames(props.children && 'pl-2')}>
-                    {props.children}
+                <div className="flex items-center h-[22px]">
+                    <div>{props.icon}</div>
+                    <div className={classNames(props.children && 'pl-2')}>
+                        {props.children}
+                    </div>
+                    <div className="ml-3">{arrowDownIcon}</div>
                 </div>
-                <div className="ml-3">{arrowDownIcon}</div>
             </div>
 
             <div

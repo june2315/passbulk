@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { propsMessage, messageOption, messageQueueItem } from './type';
 import { uuid } from '../../common/utils';
-import { useCssClassManager } from '../../common/hooks';
+import useCssClassManager from '../../common/hooks/useCssClassManager';
+import { successIcon } from '../../components/Icons';
 
 const CONTAINER_ID = 'wdu-message__container';
 const MESSAGE_QUEUE: Array<messageQueueItem> = [];
@@ -12,7 +13,10 @@ function createContainer() {
     if (!container) {
         container = document.createElement('div');
         container.setAttribute('id', CONTAINER_ID);
-        container.setAttribute('class', 'fixed top-0 w-screen z-50');
+        container.setAttribute(
+            'class',
+            'fixed top-0 w-screen z-50 pointer-events-none'
+        );
         document.body.appendChild(container);
     }
     return container;
@@ -24,10 +28,11 @@ function addMessage(params: messageOption) {
     renderMessage([...MESSAGE_QUEUE]);
 }
 
-function removeMessage(id: string) {
+function removeMessage(id: any) {
     const position = MESSAGE_QUEUE.findIndex((item) => item.id === id);
     MESSAGE_QUEUE.splice(position, 1);
     renderMessage([...MESSAGE_QUEUE]);
+    // el.remove();
 }
 
 function BaseMessage(props: any) {
@@ -62,12 +67,15 @@ function BaseMessage(props: any) {
     }, []);
 
     return (
-        <p
+        <div
             ref={refMessage}
-            className={`wdu-message wdu-message__${type} relative p-2 bg-white rounded-sm my-2 w-max mx-auto text-sm text-neutral-700 opacity-0 ${classList}`}
+            className={`wdu-message wdu-message__${type} relative my-2 w-max mx-auto text-neutral-700 opacity-0 ${classList} will-change-transform transition-all duration-75`}
         >
-            {message}
-        </p>
+            <p className="flex items-center space-x-2 bg-white p-2 rounded-sm text-sm">
+                <i className="inline-block text-[#52c41a]">{successIcon}</i>
+                <span>{message}</span>
+            </p>
+        </div>
     );
 }
 

@@ -1,10 +1,15 @@
 import classNames from 'classnames';
+import useInputValue from '../common/hooks/useInputValue';
 
 export default function TextArea(props: any) {
-    const { id, className, ...rest } = props;
+    const { id, className, onChange, value, ...rest } = props;
+
+    const [ref, handleChange] = useInputValue({ onChange, value });
+
     return (
         <textarea
             {...rest}
+            ref={ref}
             id={id}
             autoComplete="off"
             className={classNames(
@@ -12,6 +17,7 @@ export default function TextArea(props: any) {
             )}
             style={{ WebkitAppearance: 'none' }}
             rows={4}
+            onChange={handleChange}
         />
     );
 }

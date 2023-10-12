@@ -95,6 +95,17 @@ export default function Passwords() {
         return invoke('decrypt_password', { id });
     }
 
+    async function copyPassword(id: any) {
+        if (!window.__TAURI__) return Promise.reject();
+        if (state.passwordMap[id]) {
+            return writeText(state.passwordMap[id]);
+        } else {
+            return decryptPassword(id.toString()).then((password: any) =>
+                writeText(password)
+            );
+        }
+    }
+
     useEffect(() => {
         if (window.__TAURI__) {
             queryList();
@@ -149,24 +160,16 @@ export default function Passwords() {
     };
 
     const handleCopyPassword = () => {
-        Message.success('已复制到剪切板');
+        // // TODO delete
+        // Message.success('已复制到剪切板');
+
         const record = state.dataSource.find((d: any) =>
             state.selectedRowKeys.includes(d.id)
         );
         if (!record) return;
-        if (state.passwordMap[record.id]) {
-            writeText(state.passwordMap[record.id]).then(() => {
-                console.log(12);
-                // Message.success('已复制到剪切板');
-            });
-        } else {
-            decryptPassword(record.id.toString())
-                .then((password: any) => writeText(password))
-                .then(() => {
-                    console.log(12);
-                    // Message.success('已复制到剪切板');
-                });
-        }
+        copyPassword(record.id).then(() => {
+            Message.success('已复制到剪切板');
+        });
     };
 
     const handleShowPassword = (record: any) => {

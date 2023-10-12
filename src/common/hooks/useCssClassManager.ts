@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
+
 interface cssClass {
     base: string;
     [key: string]: string;
 }
 
-export function useCssClassManager(cssClassMap: cssClass) {
+export default function useCssClassManager(cssClassMap: cssClass) {
     const [classMap, setClassMap] = useState<cssClass>({
         base: cssClassMap.base,
     });

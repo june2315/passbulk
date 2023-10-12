@@ -1,25 +1,50 @@
+import Form from './form';
+import {
+    FormInstance,
+    FormProps,
+    FormItemProps,
+    FormProviderProps,
+} from './interface';
+
+import FormItem from './form-item';
+import FormControl from './control';
+// import FormList from './form-list';
+import FormProvider from './form-provider';
 import useForm from './useForm';
-import FormContext from './formContext';
+import useWatch from './useWatch';
+import useFormContext from './useContext';
+import useFormState from './useState';
 
-export default function Form({ onFinish, children }: any) {
-    const [formInstance] = useForm();
+export type { FormInstance, FormProps, FormItemProps, FormProviderProps };
 
-    // formInstance.setCallbacks({
-    //     onFinish,
-    // });
+type RefForm = typeof Form;
 
-    return (
-        <form
-            onSubmit={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                // 这个submit就是我们写的那个submit，只是包装了一层，把form收集到的values传给我们了
-                formInstance.submit();
-            }}
-        >
-            <FormContext.Provider value={formInstance}>
-                {children}
-            </FormContext.Provider>
-        </form>
-    );
+export interface FormComponent extends RefForm {
+    Item: typeof FormItem;
+    //   List: typeof FormList;
+    Control: typeof FormControl;
+    Provider: typeof FormProvider;
+    useForm: typeof useForm;
+    useFormContext: typeof useFormContext;
+    useWatch: typeof useWatch;
+    useFormState: typeof useFormState;
 }
+
+const FormComp: FormComponent = Form as FormComponent;
+
+FormComp.Provider = FormProvider;
+FormComp.Item = FormItem;
+
+// FormComp.List = FormList;
+
+FormComp.Control = FormControl;
+
+FormComp.useForm = useForm;
+
+FormComp.useFormContext = useFormContext;
+
+FormComp.useWatch = useWatch;
+
+FormComp.useFormState = useFormState;
+
+export default FormComp;

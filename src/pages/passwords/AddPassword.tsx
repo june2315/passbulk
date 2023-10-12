@@ -1,15 +1,19 @@
 import Modal from '../../components/Modal';
 import Input from '../../components/Input';
 import TextArea from '../../components/TextArea';
-import FormItem from '../../components/FormItem';
+// import FormItem from '../../components/FormItem';
 import Form from '../../components/Form';
 import Button from '../../components/Button';
 import { tuning, randomIcon, eyeIcon, eyeOff } from '../../components/Icons';
 import { useSetState } from 'ahooks';
 import { useEffect } from 'react';
 
+const FormItem = Form.Item;
+
 export default function AddPassword(props: any) {
     const { open, onClose, onOk } = props;
+
+    const [form] = Form.useForm();
 
     const [state, setState]: any = useSetState({
         passwordVisible: false,
@@ -19,7 +23,8 @@ export default function AddPassword(props: any) {
 
     useEffect(() => {
         if (open) {
-            setState({ values: {} });
+            // setState({ values: {} });
+            form.resetFields();
         }
     }, [open]);
 
@@ -27,20 +32,28 @@ export default function AddPassword(props: any) {
         setState({ passwordVisible: !state.passwordVisible });
     };
 
-    const handleChange = (key: string, value: any) => {
-        state.values[key] = value;
+    // const handleChange = (key: string, value: any) => {
+    //     state.values[key] = value;
 
-        setState({ values: state.values });
-    };
+    //     setState({ values: state.values });
+    // };
 
     const handleOk = () => {
-        const res = onOk?.(state.values);
-        if (res instanceof Promise) {
-            setState({ okLoading: true });
-            res.then(onClose).finally(() => setState({ okLoading: false }));
-        } else {
-            onClose?.();
-        }
+        form.validate()
+            .then((values) => {
+                console.log(values);
+
+                // const res = onOk?.(state.values);
+                // if (res instanceof Promise) {
+                //     setState({ okLoading: true });
+                //     res.then(onClose).finally(() => setState({ okLoading: false }));
+                // } else {
+                //     onClose?.();
+                // }
+            })
+            .catch((err) => {
+                console.log('err', err);
+            });
     };
 
     return (
@@ -52,41 +65,51 @@ export default function AddPassword(props: any) {
             okText="Create"
             okButtonProps={{ loading: state.okLoading }}
         >
-            <Form>
-                <FormItem label="Name" name="name" required>
+            <Form
+                layout="vertical"
+                requiredSymbol={{ position: 'end' }}
+                form={form}
+            >
+                <FormItem
+                    label="Name"
+                    field="name"
+                    required
+                    rules={[{ required: true }]}
+                >
                     <Input
                         placeholder="Name"
-                        id="name"
-                        onChange={(event: any) =>
-                            handleChange('name', event?.target.value)
-                        }
+                        // onChange={(event: any) =>
+                        //     handleChange('name', event?.target.value)
+                        // }
                     />
                 </FormItem>
 
-                <FormItem label="URI" name="URI">
+                <FormItem label="URI" field="URI">
                     <Input
                         placeholder="URI"
-                        id="URI"
-                        onChange={(event: any) =>
-                            handleChange('uri', event?.target.value)
-                        }
+                        // onChange={(event: any) =>
+                        //     handleChange('uri', event?.target.value)
+                        // }
                     />
                 </FormItem>
 
-                <FormItem label="Username" name="username">
+                <FormItem label="Username" field="username">
                     <Input
                         placeholder="Username"
-                        id="username"
-                        onChange={(event: any) =>
-                            handleChange('username', event?.target.value)
-                        }
+                        // onChange={(event: any) =>
+                        //     handleChange('username', event?.target.value)
+                        // }
                     />
                 </FormItem>
 
-                <FormItem label="Password" name="password" required>
+                <FormItem
+                    label="Password"
+                    field="password"
+                    required
+                    rules={[{ required: true }]}
+                >
                     <Input
                         placeholder="Password"
-                        id="password"
                         type={state.passwordVisible ? 'text' : 'password'}
                         addonAfter={
                             <div
@@ -97,27 +120,30 @@ export default function AddPassword(props: any) {
                             </div>
                         }
                         extraRight={[
-                            <Button key="random" icon={randomIcon} />,
+                            <Button
+                                key="random"
+                                icon={randomIcon}
+                                className="h-[38px] pt-[6px]"
+                            />,
                             <Button key="tuning" icon={tuning} />,
                         ]}
-                        onChange={(event: any) =>
-                            handleChange('password', event?.target.value)
-                        }
+                        // onChange={(event: any) =>
+                        //     handleChange('password', event?.target.value)
+                        // }
                     />
                 </FormItem>
 
-                <div className="mb-[16px] mt-[-3px]">
+                <div className="mb-[20px]">
                     <span className="text-sm font-light">Quality</span>
                     <div className="h-[2px] bg-gradient-to-r from-[#a40000] via-[#ffa724] to-[#0eaa00]"></div>
                 </div>
 
-                <FormItem label="Description" name="description">
+                <FormItem label="Description" field="description">
                     <TextArea
                         placeholder="Add a description"
-                        id="description"
-                        onChange={(event: any) =>
-                            handleChange('description', event?.target.value)
-                        }
+                        // onChange={(event: any) =>
+                        //     handleChange('description', event?.target.value)
+                        // }
                     />
                 </FormItem>
             </Form>
