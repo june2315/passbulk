@@ -1,8 +1,10 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use paspio::entropy;
+use rand_pwd::RandPwd;
 use rusqlite::Result;
-// use serde_json::Value;
+use serde_json::Value;
 use std::collections::HashMap;
 
 mod db;
@@ -17,21 +19,25 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 async fn save(data: String) -> Result<(), String> {
-    // println!("receive data: {}", data);
+    println!("receive data: {}", data);
 
     let conn = create_db().unwrap();
-    let deserialized: HashMap<String, String> = match serde_json::from_str(&data) {
+    // let deserialized: HashMap<String, PasswordVal> = match serde_json::from_str(&data) {
+    //     Ok(v) => v,
+    //     Err(e) => return Err(e.to_string()),
+    // };
+    let deserialized: Value = match serde_json::from_str(&data) {
         Ok(v) => v,
         Err(e) => return Err(e.to_string()),
     };
 
-    if deserialized.contains_key("id") {
+    if deserialized["id"].is_null() {
+        insert_data(&conn, deserialized).unwrap();
+    } else {
         match update_data(&conn, deserialized) {
             Ok(v) => v,
             Err(e) => return Err(e.to_string()),
         };
-    } else {
-        insert_data(&conn, deserialized).unwrap();
     }
 
     Ok(())
@@ -84,6 +90,19 @@ async fn decrypt_password(id: String) -> Result<String, ()> {
     Ok(password)
 }
 
+#[tauri::command]
+async fn gen_password() -> Result<String, ()> {
+    let mut r_p = RandPwd::new(10, 2, 3);
+    r_p.join();
+    println!("gen_password: {}", r_p);
+    Ok(r_p.to_string())
+}
+
+#[tauri::command]
+async fn password_entropy(password: String) -> Result<f64, ()> {
+    Ok(entropy(&password).round())
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -91,7 +110,9 @@ fn main() {
             save,
             batch_delete,
             query,
-            decrypt_password
+            decrypt_password,
+            gen_password,
+            password_entropy
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

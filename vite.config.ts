@@ -5,6 +5,12 @@ import react from "@vitejs/plugin-react";
 export default defineConfig(async () => ({
   plugins: [react()],
 
+  resolve: {
+    alias: {
+      // "@": path.resolve(__dirname, "./src"),
+      "@": "/src",
+    },
+  },
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
   // 1. prevent vite from obscuring rust errors

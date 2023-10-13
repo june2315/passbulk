@@ -245,6 +245,7 @@ const Item = <
             [`${prefixCls}-item-has-help`]: hasHelp,
             [`${prefixCls}-item-hidden`]: hidden,
             [`${prefixCls}-item-has-feedback`]: itemStatus && props.hasFeedback,
+            ['hidden']: hidden,
             ['flex space-x-3 ']: formLayout === 'horizontal',
             ['mb-[20px]']: !itemStatus,
         },

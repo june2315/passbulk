@@ -1,6 +1,13 @@
 use rusqlite::{named_params, params, Connection, Error, Result};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
+
+// #[derive(Serialize, Deserialize, Debug)]
+// pub enum PasswordVal {
+//     Int(i32),
+//     String,
+// }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Password {
@@ -12,7 +19,7 @@ pub struct Password {
     description: String,
 }
 
-pub fn insert_data(conn: &Connection, deserialized: HashMap<String, String>) -> Result<()> {
+pub fn insert_data(conn: &Connection, deserialized: Value) -> Result<()> {
     let data: Password = Password {
         id: 0,
         name: deserialized.get("name").unwrap().to_string(),
@@ -49,7 +56,7 @@ pub fn delete_data(conn: &Connection, id_str: String) -> Result<()> {
     Ok(())
 }
 
-pub fn update_data(conn: &Connection, deserialized: HashMap<String, String>) -> Result<(), Error> {
+pub fn update_data(conn: &Connection, deserialized: Value) -> Result<(), Error> {
     let mut update_param: Vec<String> = Vec::new();
 
     update_param.push(format!(
@@ -62,21 +69,21 @@ pub fn update_data(conn: &Connection, deserialized: HashMap<String, String>) -> 
         deserialized.get("password").unwrap().to_string()
     ));
 
-    if deserialized.contains_key("uri") {
+    if !deserialized["uri"].is_null() {
         update_param.push(format!(
             "URI = {}",
             deserialized.get("uri").unwrap().to_string()
         ));
     }
 
-    if deserialized.contains_key("username") {
+    if !deserialized["username"].is_null() {
         update_param.push(format!(
             "username = {}",
             deserialized.get("username").unwrap().to_string()
         ));
     }
 
-    if deserialized.contains_key("description") {
+    if !deserialized["description"].is_null() {
         update_param.push(format!(
             "description = {}",
             deserialized.get("description").unwrap().to_string()
@@ -88,7 +95,7 @@ pub fn update_data(conn: &Connection, deserialized: HashMap<String, String>) -> 
         update_param.join(",")
     ))?;
 
-    match stmt.execute(named_params! {":id": deserialized.get("id").unwrap() }) {
+    match stmt.execute(named_params! {":id": deserialized["id"].as_i64() }) {
         Ok(_) => Ok(()),
         Err(e) => return Err(e),
     }

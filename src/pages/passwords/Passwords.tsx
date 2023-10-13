@@ -1,12 +1,12 @@
-import ActionBar from '../../components/ActionBar';
-import Button, { ActiveButton } from '../../components/Button';
-import ButtonGroup from '../../components/ButtonGroup';
-import Dropdown from '../../components/Dropdown';
-import Aside from '../../components/Aside';
-import BreadCrumb from '../../components/BreadCrumb';
-import Table from '../../components/Table';
-import Modal from '../../components/Modal';
-import Message from '../../components/Message/Message';
+import ActionBar from '@/components/ActionBar';
+import Button, { ActiveButton } from '@/components/Button';
+import ButtonGroup from '@/components/ButtonGroup';
+import Dropdown from '@/components/Dropdown';
+import Aside from '@/components/Aside';
+import BreadCrumb from '@/components/BreadCrumb';
+import Table from '@/components/Table';
+import Modal from '@/components/Modal';
+import Message from '@/components/Message/Message';
 import {
     copyIcon,
     editIcon,
@@ -18,16 +18,19 @@ import {
     columnIcon,
     eyeIcon,
     eyeOff,
-} from '../../components/Icons';
+} from '@/components/Icons';
 import AddPassword from './AddPassword';
+import {
+    copyPassword,
+    deletePasswords,
+    savePassword,
+    queryPasswordList,
+} from '@/api';
 
 import { useSetState } from 'ahooks';
 // import { isEqual } from 'lodash-es';
-
-import { invoke } from '@tauri-apps/api/tauri';
-import { writeText } from '@tauri-apps/api/clipboard';
 import { useEffect } from 'react';
-import classNames from 'classnames';
+// import classNames from 'classnames';
 
 export default function Passwords() {
     const [state, setState]: any = useSetState({
@@ -73,37 +76,9 @@ export default function Passwords() {
     }
 
     function queryList(query_params: any = {}) {
-        return invoke('query', { data: JSON.stringify(query_params) }).then(
-            (res: any) => setParseResponse(res)
+        return queryPasswordList(query_params).then((res: any) =>
+            setParseResponse(res)
         );
-    }
-
-    function saveValues(values: any) {
-        return invoke('save', { data: JSON.stringify(values) }).catch(
-            (err: any) => {
-                console.log(err);
-                return Promise.reject(err);
-            }
-        );
-    }
-
-    function deleteItems(ids: string) {
-        return invoke('batch_delete', { ids });
-    }
-
-    async function decryptPassword(id: string) {
-        return invoke('decrypt_password', { id });
-    }
-
-    async function copyPassword(id: any) {
-        if (!window.__TAURI__) return Promise.reject();
-        if (state.passwordMap[id]) {
-            return writeText(state.passwordMap[id]);
-        } else {
-            return decryptPassword(id.toString()).then((password: any) =>
-                writeText(password)
-            );
-        }
     }
 
     useEffect(() => {
@@ -113,18 +88,28 @@ export default function Passwords() {
     }, []);
 
     const handleAdd = () => {
-        setState({ addModalOpen: true });
+        setState({ addModalOpen: true, editItem: null });
     };
 
     const handleAddOk = (values: any) => {
         // console.log(values);
-        return saveValues(values).then(
+        return savePassword(values).then(
             () =>
                 new Promise<void>((resolve) => {
                     queryList();
                     setTimeout(resolve, 300);
                 })
         );
+    };
+
+    const handleEdit = () => {
+        const { dataSource, selectedRowKeys } = state;
+        const editItem = dataSource.find(
+            (d: any) => d.id === selectedRowKeys[0]
+        );
+        if (editItem) {
+            setState({ addModalOpen: true, editItem });
+        }
     };
 
     const handleDelete = () => {
@@ -135,7 +120,7 @@ export default function Passwords() {
         const { selectedRowKeys } = state;
         // console.log(selectedRowKeys);
         setState({ deleteLoading: true });
-        deleteItems(selectedRowKeys.join(',')).then(() =>
+        deletePasswords(selectedRowKeys.join(',')).then(() =>
             setTimeout(() => {
                 queryList();
                 setState({ deleteConfirmOpen: false, deleteLoading: false });
@@ -166,8 +151,9 @@ export default function Passwords() {
         const record = state.dataSource.find((d: any) =>
             state.selectedRowKeys.includes(d.id)
         );
+
         if (!record) return;
-        copyPassword(record.id).then(() => {
+        copyPassword(record.id, state.passwordMap[record.id]).then(() => {
             Message.success('已复制到剪切板');
         });
     };
@@ -202,12 +188,14 @@ export default function Passwords() {
                         <Button key="upload" icon={uploadIcon} />
                     </ButtonGroup>,
                 ]}
-                extraRight={[
-                    <ButtonGroup key="extraRightBtn">
-                        <Dropdown icon={columnIcon} />
-                        <ActiveButton key="info" icon={infoIcon} />
-                    </ButtonGroup>,
-                ]}
+                extra={{
+                    right: [
+                        <ButtonGroup key="extraRightBtn">
+                            <Dropdown icon={columnIcon} />
+                            <ActiveButton key="info" icon={infoIcon} />
+                        </ButtonGroup>,
+                    ],
+                }}
             >
                 <ButtonGroup>
                     {[
@@ -223,6 +211,7 @@ export default function Passwords() {
                             key="edit"
                             icon={editIcon}
                             disabled={state.selectedRowKeys.length !== 1}
+                            onClick={handleEdit}
                         >
                             edit
                         </Button>,
@@ -330,7 +319,9 @@ export default function Passwords() {
                         dataSource={state.dataSource}
                     />
                 </main>
+
                 <AddPassword
+                    data={state.editItem}
                     open={state.addModalOpen}
                     onClose={() => setState({ addModalOpen: false })}
                     onOk={handleAddOk}
@@ -341,12 +332,12 @@ export default function Passwords() {
                     title="Delete password?"
                     okText="delete"
                     top={20}
-                    open={state.deleteConfirmOpen}
-                    onClose={() => setState({ deleteConfirmOpen: false })}
                     okButtonProps={{
                         danger: true,
                         loading: state.deleteLoading,
                     }}
+                    open={state.deleteConfirmOpen}
+                    onClose={() => setState({ deleteConfirmOpen: false })}
                     onOk={handleDeleteOk}
                 >
                     <p className="text-base">
