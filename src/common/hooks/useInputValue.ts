@@ -1,19 +1,24 @@
 import { useRef, useEffect } from 'react';
+import type { RefObject } from 'react';
 
 interface InputChangeProps {
-    value: string | number | undefined | null;
-    onChange: (value, event: any) => void;
+    value: string | undefined | null;
+    onChange: (value, event: Event) => void;
 }
 
-export default function useInputValue({ onChange, value }: InputChangeProps = {} as InputChangeProps) {
-    const ref: any = useRef();
+export default function useInputValue(
+    { onChange, value }: InputChangeProps = {} as InputChangeProps
+) {
+    const ref: RefObject<HTMLInputElement> = useRef(null);
 
     useEffect(() => {
-        ref.current.value = value || '';
+        if (ref.current) {
+            ref.current.value = value || '';
+        }
     }, [value]);
 
-    const handleChange = (event: InputEvent) => {
-        onChange?.(event.target?.value, event);
+    const handleChange = (event: Event) => {
+        onChange?.((event.target as HTMLInputElement)?.value, event);
     };
 
     return [ref, handleChange];

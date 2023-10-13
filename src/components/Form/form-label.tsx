@@ -37,9 +37,11 @@ const FormItemLabel: React.FC<FormItemLabelProps> = ({
         : 'start';
 
     const symbolNode = (required || isRequiredRule) && !!requiredSymbol && (
-        <strong className={`${prefix}-form-item-symbol text-[rgb(245,63,63)] text-[13px] inline-block`}>
+        <strong
+            className={`${prefix}-form-item-symbol text-[rgb(245,63,63)] text-[13px] inline-block mx-[2px]`}
+        >
             <svg
-                className='scale-50'
+                className="scale-[0.6]"
                 fill="currentColor"
                 viewBox="0 0 1024 1024"
                 width="1em"
@@ -83,7 +85,10 @@ const FormItemLabel: React.FC<FormItemLabelProps> = ({
     // };
 
     return label ? (
-        <label htmlFor={htmlFor && `${htmlFor}${ID_SUFFIX}`} className='text-right'>
+        <label
+            htmlFor={htmlFor && `${htmlFor}${ID_SUFFIX}`}
+            className="text-right flex items-center"
+        >
             {symbolPosition !== 'end' && symbolNode} {label}
             {/* {renderTooltip()} */}
             {symbolPosition === 'end' && <> {symbolNode}</>}

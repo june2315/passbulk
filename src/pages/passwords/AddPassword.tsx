@@ -11,20 +11,22 @@ import { useEffect } from 'react';
 const FormItem = Form.Item;
 
 export default function AddPassword(props: any) {
-    const { open, onClose, onOk } = props;
+    const { open, onClose, onOk, data } = props;
 
     const [form] = Form.useForm();
 
     const [state, setState]: any = useSetState({
         passwordVisible: false,
         okLoading: false,
-        values: {},
     });
 
     useEffect(() => {
         if (open) {
-            // setState({ values: {} });
-            form.resetFields();
+            if (data) {
+                form.setFieldsValue(data);
+            } else {
+                form.resetFields();
+            }
         }
     }, [open]);
 
@@ -41,15 +43,15 @@ export default function AddPassword(props: any) {
     const handleOk = () => {
         form.validate()
             .then((values) => {
-                console.log(values);
-
-                // const res = onOk?.(state.values);
-                // if (res instanceof Promise) {
-                //     setState({ okLoading: true });
-                //     res.then(onClose).finally(() => setState({ okLoading: false }));
-                // } else {
-                //     onClose?.();
-                // }
+                const res = onOk?.(values);
+                if (res instanceof Promise) {
+                    setState({ okLoading: true });
+                    res.then(onClose).finally(() =>
+                        setState({ okLoading: false })
+                    );
+                } else {
+                    onClose?.();
+                }
             })
             .catch((err) => {
                 console.log('err', err);

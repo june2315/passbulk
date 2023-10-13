@@ -9,3 +9,32 @@
 .hover-icon-primary:hover svg path {
     stroke: #3c82f6;
 }
+
+.formblink-enter,
+.formblink-appear {
+    opacity: 0;
+}
+
+.formblink-enter-active,
+.formblink-appear-active {
+    opacity: 1;
+    transition: opacity 0.3s cubic-bezier(0, 0, 1, 1);
+}
+
+.formblink-enter-done {
+    animation: passbulk-form-blink 0.5s cubic-bezier(0, 0, 1, 1);
+}
+
+@keyframes passbulk-form-blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

@@ -10,6 +10,7 @@ import React, {
     ReactNode,
     useRef,
 } from 'react';
+import type { RefObject } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import cs from '../../common/classNames';
 import { isArray, isFunction, isUndefined, isObject } from '../../common/utils';
@@ -52,13 +53,17 @@ const FormItemTip: React.FC<FormItemTipProps> = ({
     const errorTip = propsErrors.map((item, i) => {
         if (item) {
             return (
-                <div key={i} role="alert" className="text-[rgb(245,63,63)] text-sm">
+                <div
+                    key={i}
+                    role="alert"
+                    className="text-[rgb(245,63,63)] text-sm"
+                >
                     {item.message}
                 </div>
             );
         }
     });
-    const warningTip = [];
+    const warningTip: any[] = [];
     warnings.map((item, i) => {
         warningTip.push(
             <div
@@ -73,6 +78,25 @@ const FormItemTip: React.FC<FormItemTipProps> = ({
     const isHelpTip = !isUndefined(help) || !!warningTip.length;
     const visible = isHelpTip || !!errorTip.length;
 
+    const tipsRef: RefObject<HTMLDivElement> = useRef(null);
+
+    const TipElement: ReactElement = (
+        <div
+            ref={tipsRef}
+            className={cs(`${prefixCls}-message`, {
+                [`${prefixCls}-message-help`]: isHelpTip,
+            })}
+        >
+            {!isUndefined(help) ? (
+                help
+            ) : (
+                <>
+                    {errorTip.length > 0 && errorTip}
+                    {warningTip.length > 0 && warningTip}
+                </>
+            )}
+        </div>
+    );
     return (
         visible && (
             <CSSTransition
@@ -81,21 +105,9 @@ const FormItemTip: React.FC<FormItemTipProps> = ({
                 classNames="formblink"
                 timeout={300}
                 unmountOnExit
+                nodeRef={tipsRef}
             >
-                <div
-                    className={cs(`${prefixCls}-message`, {
-                        [`${prefixCls}-message-help`]: isHelpTip,
-                    })}
-                >
-                    {!isUndefined(help) ? (
-                        help
-                    ) : (
-                        <>
-                            {errorTip.length > 0 && errorTip}
-                            {warningTip.length > 0 && warningTip}
-                        </>
-                    )}
-                </div>
+                {TipElement}
             </CSSTransition>
         )
     );
@@ -110,6 +122,7 @@ const Item = <
     ref: React.Ref<any>
 ) => {
     // const { getPrefixCls, prefixCls: prefix } = useContext(ConfigContext);
+    const prefix = props.prefix;
     const topFormContext = useContext(RawFormItemContext);
     const formListContext = useContext(FormListContext);
     const [errors, setErrors] = useState<{
@@ -408,7 +421,7 @@ const Item = <
                                         )
                                     }
                                     label={label}
-                                    // prefix={prefix}
+                                    prefix={prefix as string}
                                     requiredSymbol={
                                         'requiredSymbol' in props
                                             ? props.requiredSymbol
