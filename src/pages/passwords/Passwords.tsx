@@ -27,12 +27,16 @@ import {
     queryPasswordList,
 } from '@/api';
 
-import { useSetState } from 'ahooks';
+import { useSetState, useUpdateEffect } from 'ahooks';
 // import { isEqual } from 'lodash-es';
 import { useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 // import classNames from 'classnames';
+import type { PageState } from '@/interface';
 
 export default function Passwords() {
+    const [pageState] = useOutletContext<PageState[]>();
+
     const [state, setState]: any = useSetState({
         addModalOpen: false,
         deleteConfirmOpen: false,
@@ -75,7 +79,7 @@ export default function Passwords() {
         return dataSource;
     }
 
-    function queryList(query_params: any = {}) {
+    function queryList(query_params = {}) {
         return queryPasswordList(query_params).then((res: any) =>
             setParseResponse(res)
         );
@@ -86,6 +90,11 @@ export default function Passwords() {
             queryList();
         }
     }, []);
+
+    useUpdateEffect(() => {
+        // console.log('searchValue', pageState.searchValue);
+        queryList({ name: pageState.searchValue });
+    }, [pageState.searchValue]);
 
     const handleAdd = () => {
         setState({ addModalOpen: true, editItem: null });
@@ -147,7 +156,6 @@ export default function Passwords() {
     const handleCopyPassword = () => {
         // // TODO delete
         // Message.success('已复制到剪切板');
-
         const record = state.dataSource.find((d: any) =>
             state.selectedRowKeys.includes(d.id)
         );
@@ -265,7 +273,7 @@ export default function Passwords() {
                                     return (
                                         <div
                                             className="group flex space-x-3 items-center min-h-[22px]"
-                                            onClick={(e) => e.stopPropagation()}
+                                            // onClick={(e) => e.stopPropagation()}
                                         >
                                             <div
                                                 // onClick={() =>

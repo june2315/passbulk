@@ -2,6 +2,7 @@ import { useSetState } from 'ahooks';
 import Checkbox from './Checkbox';
 import { useEffect } from 'react';
 import { isEqual } from 'lodash-es';
+import classNames from 'classnames';
 
 export default function Table(props: any) {
     const { rowSelection, contextMenu, columns = [], dataSource = [] } = props;
@@ -112,7 +113,9 @@ export default function Table(props: any) {
                         const checked = state.selectedRowKeys.includes(rowKey);
                         return (
                             <tr
-                                className="hover:bg-neutral-950"
+                                className={classNames('hover:bg-neutral-950', {
+                                    ['bg-neutral-950']: checked,
+                                })}
                                 key={rowKey}
                                 onContextMenu={handleContextMenu}
                                 onClick={() => handleRowClick(record, checked)}

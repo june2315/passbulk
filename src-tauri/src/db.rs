@@ -103,10 +103,17 @@ pub fn update_data(conn: &Connection, deserialized: Value) -> Result<(), Error> 
 
 pub fn query_data(conn: &Connection, query: HashMap<String, String>) -> Result<Vec<Password>> {
     let mut base_sql: String =
-        String::from("SELECT id, name, URI, password, username, description FROM password");
+        String::from("SELECT id, name, URI, password, username, description, modified FROM password");
 
     if query.contains_key("WHERE") {
         base_sql = format!("{base_sql} WHERE {}", query.get("WHERE").unwrap());
+    }
+
+    if query.contains_key("name") {
+        base_sql = format!(
+            "{base_sql} WHERE name LIKE '{}%'",
+            query.get("name").unwrap()
+        );
     }
 
     let mut stmt = conn.prepare(&base_sql)?;

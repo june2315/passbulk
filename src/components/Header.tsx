@@ -1,9 +1,11 @@
 import passbulkLogo from '../assets/passbulk_logo.svg';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import type { RefObject } from 'react';
 import classNames from 'classnames';
-import { useSetState } from 'ahooks';
+import { useSetState, useUpdateEffect } from 'ahooks';
 
-export default function Header() {
+export default function Header(props) {
+    const searchInputRef: RefObject<HTMLInputElement> = useRef(null);
     const [state, setState] = useSetState({
         infoOpen: false,
     });
@@ -15,6 +17,12 @@ export default function Header() {
         };
     }, []);
 
+    useUpdateEffect(() => {
+        if (searchInputRef.current) {
+            searchInputRef.current.value = props.searchValue;
+        }
+    }, [props.searchValue]);
+
     const handleInfoToggle = (event: any) => {
         event.stopPropagation();
         setState({ infoOpen: !state.infoOpen });
@@ -22,6 +30,12 @@ export default function Header() {
 
     const handleInfoBlur = () => {
         setState({ infoOpen: false });
+    };
+
+    const handleSearchKeyDown = (event) => {
+        if (event.code === 'Enter') {
+            props.onSearchConfirm?.(event.target.value);
+        }
     };
 
     const menus = [
@@ -50,7 +64,7 @@ export default function Header() {
 
             {/* search and user info */}
             <div className="flex p-2 px-4 items-center  bg-search-gray">
-                <div className='relative top-[4px] w-[18rem]'>
+                <div className="relative top-[4px] w-[18rem]">
                     <img
                         src={passbulkLogo}
                         className="block "
@@ -61,8 +75,11 @@ export default function Header() {
                 <div className="flex-1">
                     <div className="relative w-[38rem]">
                         <input
+                            ref={searchInputRef}
                             className="block rounded-md bg-black py-2 px-3 w-full outline-none border border-transparent focus:outline-none  focus:border-sky-500 focus:shadow-search focus:shadow-sky-400 placeholder:italic placeholder:text-zinc-500"
                             placeholder="Search passwords"
+                            onChange={props.onSearchChange}
+                            onKeyDown={handleSearchKeyDown}
                         />
 
                         <span className="absolute inset-y-0 right-3 flex items-center pl-2 cursor-pointer">

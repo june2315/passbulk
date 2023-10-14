@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import Button from './Button';
+import { useEffect } from 'react';
 
 export default function Modal(props: any) {
     const {
@@ -13,6 +14,19 @@ export default function Modal(props: any) {
         onOk,
         okButtonProps = {},
     } = props;
+
+    function keyup(event) {
+        if (event.code === 'Escape') {
+            onClose?.();
+        }
+    }
+
+    useEffect(() => {
+        document.addEventListener('keyup', keyup);
+        return () => {
+            document.removeEventListener('keyup', keyup);
+        };
+    }, []);
     // const [state, setState] = useSetState({});
     return (
         <div className={classNames(open ? 'block' : 'hidden')}>
