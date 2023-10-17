@@ -42,7 +42,7 @@ const defaultProps = {
 };
 
 const Form = <
-    FormData extends unknown = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 >(
@@ -130,7 +130,7 @@ const Form = <
                 block: 'nearest',
                 scrollMode: 'if-needed',
                 ...options,
-            });
+            } as any);
     };
 
     innerMethods.innerSetCallbacks({
@@ -231,7 +231,7 @@ const FormComponent = forwardRef(Form);
 FormComponent.displayName = 'Form';
 
 export default FormComponent as <
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 >(

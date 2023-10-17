@@ -107,14 +107,14 @@ const FormItemTip: React.FC<FormItemTipProps> = ({
                 unmountOnExit
                 nodeRef={tipsRef}
             >
-                {TipElement}
+                {TipElement as any}
             </CSSTransition>
         )
     );
 };
 
 const Item = <
-    FormData extends unknown = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 >(
@@ -195,8 +195,8 @@ const Item = <
             FormContextProps<FormData, FieldValue, FieldKey>
         >),
         validateMessages:
-            formContext.validateMessages &&
-            formatValidateMsg(formContext.validateMessages, {
+            formContext['formatValidateMsg']  &&
+            formatValidateMsg(formContext['formatValidateMsg'], {
                 label: props.label,
             }),
         prefixCls,
@@ -475,7 +475,7 @@ ItemComponent.defaultProps = {
 ItemComponent.displayName = 'FormItem';
 
 export default ItemComponent as <
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 >(

@@ -8,7 +8,7 @@ import {
 } from './interface';
 
 export type FormContextType<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > = Context<FormContextProps<FormData, FieldValue, FieldKey>>;
@@ -46,7 +46,7 @@ export const FormContext = createContext<FormContextProps>({
 });
 
 export type FormItemContextType<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > = Context<FormItemContextProps<FormData, FieldValue, FieldKey>>;

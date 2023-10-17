@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 
 export function uuid(len: number) {
     const uuid = window.crypto.getRandomValues(new Uint8Array(len));

@@ -17,6 +17,7 @@ pub struct Password {
     pub password: String,
     username: String,
     description: String,
+    modified: String,
 }
 
 pub fn insert_data(conn: &Connection, deserialized: Value) -> Result<()> {
@@ -36,6 +37,7 @@ pub fn insert_data(conn: &Connection, deserialized: Value) -> Result<()> {
             Some(v) => v.to_string(),
             None => "".to_string(),
         },
+        modified: "".to_string(),
     };
     println!("save data: {:?}", data);
     let mut stmt = conn.prepare("INSERT INTO password (name, URI, password, username, description) VALUES (:name, :URI, :password, :username, :description)")?;
@@ -102,8 +104,9 @@ pub fn update_data(conn: &Connection, deserialized: Value) -> Result<(), Error> 
 }
 
 pub fn query_data(conn: &Connection, query: HashMap<String, String>) -> Result<Vec<Password>> {
-    let mut base_sql: String =
-        String::from("SELECT id, name, URI, password, username, description, modified FROM password");
+    let mut base_sql: String = String::from(
+        "SELECT id, name, URI, password, username, description, modified FROM password",
+    );
 
     if query.contains_key("WHERE") {
         base_sql = format!("{base_sql} WHERE {}", query.get("WHERE").unwrap());
@@ -125,6 +128,10 @@ pub fn query_data(conn: &Connection, query: HashMap<String, String>) -> Result<V
             password: row.get(3)?,
             username: row.get(4)?,
             description: row.get(5)?,
+            modified: match row.get(6) {
+                Ok(v) => v,
+                Err(_) => String::from(""),
+            },
         })
     })?;
 
@@ -147,7 +154,8 @@ pub fn create_db() -> Result<Connection> {
                 URI             TEXT,
                 password        TEXT,
                 username        TEXT,
-                description     TEXT
+                description     TEXT,
+                modified        DATETIME
             )",
         [],
     )?;

@@ -49,7 +49,7 @@ export type StoreChangeInfo<T> = {
 };
 
 class Store<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > {

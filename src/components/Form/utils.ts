@@ -56,7 +56,6 @@ export async function schemaValidate(
     field,
     value,
     _rules: RulesProps[],
-    validateMessages
 ) {
     const rules: RulesProps[] = [..._rules];
     let current = 0;
@@ -83,7 +82,6 @@ export async function schemaValidate(
             }
             const schema = new Schema({ [field]: [_rule] } as SchemaType, {
                 ignoreEmptyString: true,
-                validateMessages,
             });
 
             schema.validate({ [field]: value }, (error) => {

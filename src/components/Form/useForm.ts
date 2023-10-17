@@ -3,7 +3,7 @@ import Store from './store';
 import { FormInstance, InnerMethodsReturnType, KeyType } from './interface';
 
 export function getFormInstance<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 >(): FormInstance<FormData, FieldValue, FieldKey> {
@@ -55,7 +55,7 @@ export function getFormInstance<
 }
 
 export default function useForm<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 >(

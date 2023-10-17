@@ -1,3 +1,3 @@
-export default function BreadCrumb (props: any) {
+export default function BreadCrumb () {
     return <div></div>
 }

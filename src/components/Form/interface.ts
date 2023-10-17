@@ -35,7 +35,7 @@ export type ValidateFieldsErrors<
  * @title Form
  */
 export interface FormProps<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > extends Omit<FormHTMLAttributes<any>, 'className' | 'onChange' | 'onSubmit'> {
@@ -154,13 +154,16 @@ export interface FormProps<
      * @en validation prompt template [demo](/react/en-US/components/form#validate%20messages)
      * @version 2.32.0
      */
-      validateMessages?: Partial<{
+    validateMessages?: Partial<{
         [key in keyof ValidateMessagesTemplateType]: ValidateMessagesTemplateType[key] extends string
-          ? ValidateMessagesTemplateType[key] | ((data, { label }) => any)
-          : Partial<
-              Record<keyof ValidateMessagesTemplateType[key], string | ((data, { label }) => any)>
-            >;
-      }>;
+            ? ValidateMessagesTemplateType[key] | ((data, { label }) => any)
+            : Partial<
+                  Record<
+                      keyof ValidateMessagesTemplateType[key],
+                      string | ((data, { label }) => any)
+                  >
+              >;
+    }>;
     /**
      * @zh 数据验证成功后回调事件
      * @en Callback when submit data
@@ -211,7 +214,7 @@ export interface RulesProps<FieldValue = any> {
 }
 
 export type FormItemChildrenFn<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > = (
@@ -223,7 +226,7 @@ export type FormItemChildrenFn<
  * @title Form.Item
  */
 export interface FormItemProps<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > extends Omit<HTMLAttributes<any>, 'className' | 'children'> {
@@ -495,7 +498,7 @@ export interface FormListProps<
 }
 
 export type FormContextProps<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > = Pick<
@@ -516,7 +519,7 @@ export type FormContextProps<
 };
 
 export type FormItemContextProps<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > = FormContextProps<FormData, FieldValue, FieldKey> & {
@@ -528,7 +531,7 @@ export type FormItemContextProps<
 };
 
 export type FormInstance<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > = Pick<
@@ -555,7 +558,7 @@ export type FormInstance<
 };
 
 export type InnerMethodsReturnType<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > = Pick<

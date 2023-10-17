@@ -38,7 +38,7 @@ import {
  * 👀 👀 👀：不要在业务中直接调用，下个大版本将不会对外导出
  */
 export default class Control<
-    FormData = any,
+    FormData extends object = any,
     FieldValue = FormData[keyof FormData],
     FieldKey extends KeyType = keyof FormData
 > extends Component<FormControlProps<FormData, FieldValue, FieldKey>> {
@@ -51,7 +51,7 @@ export default class Control<
 
     static contextType = FormItemContext;
 
-    context: FormItemContextProps<FormData, FieldValue, FieldKey>;
+    declare context: FormItemContextProps<FormData, FieldValue, FieldKey>;
 
     // 校验信息
     private errors: FieldError<FieldValue> = null;
@@ -327,8 +327,7 @@ export default class Control<
         value: FieldValue;
         field: FieldKey;
     }> => {
-        const { validateTrigger: ctxValidateTrigger, validateMessages } =
-            this.context;
+        const { validateTrigger: ctxValidateTrigger } = this.context;
         const { field, rules, validateTrigger } = this.props;
         const value = this.getFieldValue();
 
@@ -354,7 +353,7 @@ export default class Control<
 
         if (_rules && _rules.length && field) {
             gotoValidatingStatus();
-            return schemaValidate(field, value, _rules, validateMessages).then(
+            return schemaValidate(field, value, _rules).then(
                 ({ error, warning }) => {
                     this.setErrors(error ? error[field] : null);
                     this.setWarnings(warning || null);
