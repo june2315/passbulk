@@ -18,6 +18,8 @@ import {
     columnIcon,
     eyeIcon,
     eyeOff,
+    sortDESC,
+    sortASC,
 } from '@/components/Icons';
 import AddPassword from './AddPassword';
 import {
@@ -29,13 +31,15 @@ import {
 
 import { useSetState, useUpdateEffect } from 'ahooks';
 // import { isEqual } from 'lodash-es';
-import { useEffect } from 'react';
+import { RefObject, useEffect, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 // import classNames from 'classnames';
 import type { PageState } from '@/interface';
+import classNames from 'classnames';
 
 export default function Passwords() {
     const [pageState] = useOutletContext<PageState[]>();
+    const queryParamsRef: RefObject<any> = useRef({});
 
     const [state, setState]: any = useSetState({
         addModalOpen: false,
@@ -44,6 +48,7 @@ export default function Passwords() {
         deleteLoading: false,
         selectedRowKeys: [],
         passwordMap: {},
+        sortOrder: 'DESC',
         dataSource: [
             {
                 id: 1,
@@ -80,9 +85,10 @@ export default function Passwords() {
     }
 
     function queryList(query_params = {}) {
-        return queryPasswordList(query_params).then((res: any) =>
-            setParseResponse(res)
-        );
+        return queryPasswordList({
+            ...queryParamsRef.current,
+            ...query_params,
+        }).then((res: any) => setParseResponse(res));
     }
 
     useEffect(() => {
@@ -93,8 +99,16 @@ export default function Passwords() {
 
     useUpdateEffect(() => {
         // console.log('searchValue', pageState.searchValue);
-        queryList({ name: pageState.searchValue });
+        queryParamsRef.current['name'] = pageState.searchValue;
+        queryList();
     }, [pageState.searchValue]);
+
+    const handleToggleSort = () => {
+        const sortOrder = state.sortOrder === 'ASC' ? 'DESC' : 'ASC';
+        setState({ sortOrder });
+        queryParamsRef.current['order_by'] = sortOrder;
+        queryList();
+    };
 
     const handleAdd = () => {
         setState({ addModalOpen: true, editItem: null });
@@ -313,7 +327,19 @@ export default function Passwords() {
                                 width: 180,
                             },
                             {
-                                title: 'Modified',
+                                title: (
+                                    <div
+                                        className={classNames(
+                                            'cursor-pointer flex space-x-2'
+                                        )}
+                                        onClick={handleToggleSort}
+                                    >
+                                        <span>Modified</span>
+                                        {state.sortOrder === 'DESC'
+                                            ? sortDESC
+                                            : sortASC}
+                                    </div>
+                                ),
                                 dataIndex: 'modified',
                                 width: 200,
                             },

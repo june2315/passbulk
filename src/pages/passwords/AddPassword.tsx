@@ -31,6 +31,7 @@ export default function AddPassword(props: any) {
                 calcPwdEntropy(data.password);
             } else {
                 form.resetFields();
+                setState({ pwdEntropy: 0 });
             }
         }
     }, [open]);
@@ -144,7 +145,7 @@ export default function AddPassword(props: any) {
             open={open}
             onClose={onClose}
             onOk={handleOk}
-            okText="Create"
+            okText={data?.id ? 'Modify' : 'Create'}
             okButtonProps={{ loading: state.okLoading }}
         >
             <Form
