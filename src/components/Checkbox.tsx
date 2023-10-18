@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { checkIcon } from './Icons';
 export default function Checkbox(props: any) {
-    const { onChange, indeterminate } = props;
+    const { onChange, indeterminate, disabled } = props;
     const [checked, setChecked] = useState(false);
 
     const handleChange = (event: any) => {
@@ -23,13 +23,16 @@ export default function Checkbox(props: any) {
                 style={{ WebkitAppearance: 'none' }}
                 onChange={handleChange}
                 checked={checked}
+                disabled={disabled}
             />
             {!indeterminate && checked && (
                 <span className="absolute pointer-events-none">
                     {checkIcon}
                 </span>
             )}
-            {indeterminate && <i className="block absolute h-[2px] w-[7px] bg-white/75"></i>}
+            {indeterminate && (
+                <i className="block absolute h-[2px] w-[7px] bg-white/75"></i>
+            )}
         </div>
     );
 }

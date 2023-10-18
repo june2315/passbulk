@@ -65,7 +65,10 @@ export default function Table(props: any) {
     };
 
     const isCheckedAll = () => {
-        return state.selectedRowKeys.length === dataSource.length;
+        return (
+            state.selectedRowKeys.length === dataSource.length &&
+            dataSource.length
+        );
     };
 
     const isIndeterminate = () => {
@@ -87,6 +90,7 @@ export default function Table(props: any) {
                                 style={{ width: 30 }}
                             >
                                 <Checkbox
+                                    disabled={!dataSource.length}
                                     indeterminate={isIndeterminate()}
                                     checked={isCheckedAll()}
                                     onChange={(checked: boolean) =>
@@ -152,6 +156,18 @@ export default function Table(props: any) {
                             </tr>
                         );
                     })}
+                    {!dataSource.length ? (
+                        <tr>
+                            <td
+                                className="p-4 text-center capitalize leading-[200px] text-neutral-600 text-lg"
+                                colSpan={
+                                    columns.length + (rowSelection ? 1 : 0)
+                                }
+                            >
+                                no items
+                            </td>
+                        </tr>
+                    ) : null}
                 </tbody>
             </table>
         </div>

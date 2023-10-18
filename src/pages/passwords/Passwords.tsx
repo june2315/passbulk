@@ -50,18 +50,18 @@ export default function Passwords() {
         passwordMap: {},
         sortOrder: 'DESC',
         dataSource: [
-            {
-                id: 1,
-                name: 'test',
-                username: 'admin',
-                password: '123',
-            },
-            {
-                id: 2,
-                name: 'test2',
-                username: 'admin',
-                password: 'abc',
-            },
+            // {
+            //     id: 1,
+            //     name: 'test',
+            //     username: 'admin',
+            //     password: '123',
+            // },
+            // {
+            //     id: 2,
+            //     name: 'test2',
+            //     username: 'admin',
+            //     password: 'abc',
+            // },
         ],
     });
 
@@ -330,7 +330,7 @@ export default function Passwords() {
                                 title: (
                                     <div
                                         className={classNames(
-                                            'cursor-pointer flex space-x-2'
+                                            'cursor-pointer flex space-x-2 items-center'
                                         )}
                                         onClick={handleToggleSort}
                                     >
@@ -351,6 +351,7 @@ export default function Passwords() {
                         }}
                         contextMenu={{}}
                         dataSource={state.dataSource}
+                        // dataSource={[]}
                     />
                 </main>
 
