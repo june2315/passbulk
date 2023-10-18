@@ -21,7 +21,10 @@ fn greet(name: &str) -> String {
 async fn save(data: String) -> Result<(), String> {
     println!("receive data: {}", data);
 
-    let conn = create_db().unwrap();
+    let conn = match create_db() {
+        Ok(v) => v,
+        Err(e) => return Err(e.to_string()),
+    };
     // let deserialized: HashMap<String, PasswordVal> = match serde_json::from_str(&data) {
     //     Ok(v) => v,
     //     Err(e) => return Err(e.to_string()),
@@ -32,7 +35,10 @@ async fn save(data: String) -> Result<(), String> {
     };
 
     if deserialized["id"].is_null() {
-        insert_data(&conn, deserialized).unwrap();
+        match insert_data(&conn, deserialized) {
+            Ok(v) => v,
+            Err(e) => return Err(e.to_string()),
+        }
     } else {
         match update_data(&conn, deserialized) {
             Ok(v) => v,
@@ -105,6 +111,12 @@ async fn password_entropy(password: String) -> Result<f64, ()> {
 
 fn main() {
     tauri::Builder::default()
+        .setup(|_app| {
+            // Initialize the database.
+            db::init();
+
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             greet,
             save,

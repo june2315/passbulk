@@ -19,6 +19,9 @@
             },
             "clipboard": {
                 "writeText": true
+            },
+            "fs": {
+                "all": true
             }
         },
         "bundle": {

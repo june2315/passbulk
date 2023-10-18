@@ -80,7 +80,7 @@ export default function Table(props: any) {
 
     return (
         <div className="w-full">
-            <table className="w-full border-collapse bg-white text-left text-sm text-gray-500 dark:bg-neutral-900 dark:text-white">
+            <table className="table-fixed w-full border-collapse bg-white text-left text-sm text-gray-500 dark:bg-neutral-900 dark:text-white">
                 <thead className="bg-gray-50 dark:bg-[#3B3B3B] dark:text-white">
                     <tr className="font-semibold">
                         {rowSelection ? (
@@ -104,7 +104,10 @@ export default function Table(props: any) {
                                 scope="col"
                                 className="px-4 py-4 cursor-default"
                                 key={col.dataIndex || `col_${colIndex}`}
-                                style={{ width: col.width || 'auto' }}
+                                style={{
+                                    width: col.width || 'auto',
+                                    maxWidth: col.maxWidth || 'auto',
+                                }}
                             >
                                 {col.title}
                             </th>
@@ -142,7 +145,7 @@ export default function Table(props: any) {
                                     const cellKey = `${rowKey}_${colIndex}`;
                                     const text = record[col.dataIndex];
                                     return (
-                                        <td className="px-4 py-3" key={cellKey}>
+                                        <td className="px-4 py-3 break-all" key={cellKey}>
                                             {col.render
                                                 ? col.render?.(
                                                       text,

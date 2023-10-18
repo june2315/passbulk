@@ -3,6 +3,8 @@ use rusqlite::{named_params, params, Connection, Error, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
 
 // #[derive(Serialize, Deserialize, Debug)]
 // pub enum PasswordVal {
@@ -19,6 +21,38 @@ pub struct Password {
     username: String,
     description: String,
     modified: String,
+}
+
+// Check if a database file exists, and create one if it does not.
+pub fn init() {
+    if !db_file_exists() {
+        create_db_file();
+    }
+}
+
+// Create the database file.
+fn create_db_file() {
+    let db_path = get_db_path();
+    let db_dir = Path::new(&db_path).parent().unwrap();
+
+    // If the parent directory does not exist, create it.
+    if !db_dir.exists() {
+        fs::create_dir_all(db_dir).unwrap();
+    }
+
+    // Create the database file.
+    fs::File::create(db_path).unwrap();
+}
+
+fn db_file_exists() -> bool {
+    let db_path = get_db_path();
+    Path::new(&db_path).exists()
+}
+
+fn get_db_path() -> String {
+    let home_dir = dirs::home_dir().unwrap();
+    home_dir.to_str().unwrap().to_string() + "/.config/passbulk/database.sqlite"
+    // home_dir.to_str().unwrap().to_string() + "/.config/passbulk/test.sqlite"
 }
 
 pub fn insert_data(conn: &Connection, deserialized: Value) -> Result<()> {
@@ -176,7 +210,8 @@ pub fn query_data(conn: &Connection, query: HashMap<String, String>) -> Result<V
 }
 
 pub fn create_db() -> Result<Connection> {
-    let conn = Connection::open("data.db")?;
+    // let conn = Connection::open("data.db")?;
+    let conn = Connection::open(get_db_path())?;
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS password (

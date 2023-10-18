@@ -116,13 +116,18 @@ export default function Passwords() {
 
     const handleAddOk = (values: any) => {
         // console.log(values);
-        return savePassword(values).then(
-            () =>
-                new Promise<void>((resolve) => {
-                    queryList();
-                    setTimeout(resolve, 300);
-                })
-        );
+        return savePassword(values)
+            .then(
+                () =>
+                    new Promise<void>((resolve) => {
+                        queryList();
+                        setTimeout(resolve, 300);
+                    })
+            )
+            .catch((error) => {
+                Message.error(error);
+                return Promise.reject(error);
+            });
     };
 
     const handleEdit = () => {
@@ -175,6 +180,12 @@ export default function Passwords() {
         );
 
         if (!record) return;
+        copyPassword(record.id, state.passwordMap[record.id]).then(() => {
+            Message.success('已复制到剪切板');
+        });
+    };
+
+    const handleCopyRecord = (record) => {
         copyPassword(record.id, state.passwordMap[record.id]).then(() => {
             Message.success('已复制到剪切板');
         });
@@ -276,23 +287,23 @@ export default function Passwords() {
 
                     <Table
                         columns={[
-                            { title: 'Name', dataIndex: 'name', width: 120 },
+                            { title: 'Name', dataIndex: 'name', width: 200 },
                             {
                                 title: 'Password',
                                 dataIndex: 'password',
-                                width: 240,
+                                width: 200,
                                 render: (text: any, record: any) => {
                                     const showPassword =
                                         state.passwordMap[record.id];
                                     return (
                                         <div
                                             className="group flex space-x-3 items-center min-h-[22px]"
-                                            // onClick={(e) => e.stopPropagation()}
+                                            onClick={(e) => e.stopPropagation()}
                                         >
                                             <div
-                                                // onClick={() =>
-                                                //     handleCopyPassword(record)
-                                                // }
+                                                onClick={() =>
+                                                    handleCopyRecord(record)
+                                                }
                                                 className="text-base leading-none "
                                             >
                                                 {showPassword ? (
@@ -320,7 +331,7 @@ export default function Passwords() {
                                     );
                                 },
                             },
-                            { title: 'URI', dataIndex: 'uri', width: 260 },
+                            { title: 'URI', dataIndex: 'uri', width: 200 },
                             {
                                 title: 'Username',
                                 dataIndex: 'username',
