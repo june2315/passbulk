@@ -3,38 +3,49 @@
 @tailwind utilities;
 
 :root {
-    min-height: 100vh;
+  min-height: 100vh;
 }
 
 .hover-icon-primary:hover svg path {
-    stroke: #3c82f6;
+  stroke: #3c82f6;
 }
 
 .formblink-enter,
 .formblink-appear {
-    opacity: 0;
+  opacity: 0;
 }
 
 .formblink-enter-active,
 .formblink-appear-active {
-    opacity: 1;
-    transition: opacity 0.3s cubic-bezier(0, 0, 1, 1);
+  opacity: 1;
+  transition: opacity 0.3s cubic-bezier(0, 0, 1, 1);
 }
 
 .formblink-enter-done {
-    animation: passbulk-form-blink 0.5s cubic-bezier(0, 0, 1, 1);
+  animation: passbulk-form-blink 0.5s cubic-bezier(0, 0, 1, 1);
 }
 
 @keyframes passbulk-form-blink {
-    0% {
-        opacity: 1;
-    }
+  0% {
+    opacity: 1;
+  }
 
-    50% {
-        opacity: 0.2;
-    }
+  50% {
+    opacity: 0.2;
+  }
 
-    100% {
-        opacity: 1;
-    }
+  100% {
+    opacity: 1;
+  }
+}
+
+@layer base {
+  :root {
+    --transform: translateY(-50%);
+  }
+
+  .pb-y-center {
+    top: 50%;
+    transform: var(--transform);
+  }
 }

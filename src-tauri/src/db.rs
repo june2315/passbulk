@@ -21,6 +21,8 @@ pub struct Password {
     username: String,
     description: String,
     modified: String,
+    created: String,
+    location: String,
 }
 
 // Check if a database file exists, and create one if it does not.
@@ -51,8 +53,8 @@ fn db_file_exists() -> bool {
 
 fn get_db_path() -> String {
     let home_dir = dirs::home_dir().unwrap();
-    home_dir.to_str().unwrap().to_string() + "/.config/passbulk/database.sqlite"
-    // home_dir.to_str().unwrap().to_string() + "/.config/passbulk/test.sqlite"
+    // home_dir.to_str().unwrap().to_string() + "/.config/passbulk/database.sqlite"
+    home_dir.to_str().unwrap().to_string() + "/.config/passbulk/test.sqlite"
 }
 
 pub fn insert_data(conn: &Connection, deserialized: Value) -> Result<()> {
@@ -64,27 +66,35 @@ pub fn insert_data(conn: &Connection, deserialized: Value) -> Result<()> {
         password: String::from(deserialized.get("password").unwrap().as_str().unwrap()),
         uri: match deserialized.get("uri") {
             Some(v) => String::from(v.as_str().unwrap()),
-            None => "".to_string(),
+            None => String::from(""),
         },
         username: match deserialized.get("username") {
             Some(v) => String::from(v.as_str().unwrap()),
-            None => "".to_string(),
+            None => String::from(""),
         },
         description: match deserialized.get("description") {
             Some(v) => String::from(v.as_str().unwrap()),
-            None => "".to_string(),
+            None => String::from(""),
         },
+        created: now.format("%Y-%m-%d %H:%M:%S").to_string(),
         modified: now.format("%Y-%m-%d %H:%M:%S").to_string(),
+        location: match deserialized.get("location") {
+            Some(v) => String::from(v.as_str().unwrap()),
+            None => String::from("root"),
+        },
     };
     println!("save data: {:?}", data);
-    let mut stmt = conn.prepare("INSERT INTO password (name, URI, password, username, description, modified) VALUES (:name, :URI, :password, :username, :description, :modified)")?;
+    let mut stmt = conn.prepare("INSERT INTO password (name, URI, password, username, description, created, modified, location) VALUES (:name, :URI, :password, :username, :description, :created, :modified, :location)")?;
     stmt.execute(named_params! {
-    ":name": data.name,
-    ":URI": data.uri,
-    ":password": data.password,
-    ":username": data.username,
-    ":description": data.description,
-    ":modified": data.modified})?;
+        ":name": data.name,
+        ":URI": data.uri,
+        ":password": data.password,
+        ":username": data.username,
+        ":description": data.description,
+        ":created": data.created,
+        ":modified": data.modified,
+        ":location": data.location,
+    })?;
     Ok(())
 }
 
@@ -130,6 +140,13 @@ pub fn update_data(conn: &Connection, deserialized: Value) -> Result<(), Error> 
         ));
     }
 
+    if !deserialized["location"].is_null() {
+        update_param.push(format!(
+            "location = {}",
+            deserialized.get("location").unwrap().to_string()
+        ));
+    }
+
     update_param.push(format!(
         "modified = '{}'",
         String::from(Local::now().format("%Y-%m-%d %H:%M:%S").to_string())
@@ -148,17 +165,22 @@ pub fn update_data(conn: &Connection, deserialized: Value) -> Result<(), Error> 
     }
 }
 
+pub fn format_datetime(datetime: &str) -> String {
+    let datetime = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%d %H:%M:%S").unwrap();
+    datetime.format("%Y年%m月%d日 %H:%M:%S").to_string()
+}
+
 pub fn query_data(conn: &Connection, query: HashMap<String, String>) -> Result<Vec<Password>> {
     let sort_str = format!(
         "ORDER BY modified {}",
         match query.get("order_by") {
             Some(v) => v.to_string(),
-            None => "DESC".to_string(),
+            None => String::from("DESC"),
         }
     );
 
     let mut base_sql: String = String::from(
-        "SELECT id, name, URI, password, username, description, modified FROM password",
+        "SELECT id, name, URI, password, username, description, created, modified, location FROM password",
     );
 
     if query.contains_key("WHERE") {
@@ -183,11 +205,13 @@ pub fn query_data(conn: &Connection, query: HashMap<String, String>) -> Result<V
             password: row.get(3)?,
             username: row.get(4)?,
             description: row.get(5)?,
-            modified: match row.get(6) {
+            created: row.get(6)?,
+            modified: match row.get(7) {
                 // Ok(v) => DateTime::parse_from_str(v.as_str().unwrap().to_string(), fmt).unwrap().to_string(),
                 Ok(v) => v,
                 Err(_) => String::from(""),
             },
+            location: row.get(8)?,
         })
     })?;
 
@@ -197,12 +221,15 @@ pub fn query_data(conn: &Connection, query: HashMap<String, String>) -> Result<V
         // pwd_vec.push(p?)
 
         let mut pwd = p?;
-        if pwd.modified != "" {
-            pwd.modified = NaiveDateTime::parse_from_str(&pwd.modified, "%Y-%m-%d %H:%M:%S")
-                .unwrap()
-                .format("%Y年%m月%d日 %H:%M:%S")
-                .to_string();
+
+        if !pwd.created.is_empty() {
+            pwd.created = format_datetime(&pwd.created)
         }
+
+        if !pwd.modified.is_empty() {
+            pwd.modified = format_datetime(&pwd.modified)
+        }
+
         pwd_vec.push(pwd)
     }
 
@@ -221,7 +248,9 @@ pub fn create_db() -> Result<Connection> {
                 password        TEXT,
                 username        TEXT,
                 description     TEXT,
-                modified        DATETIME
+                created         DATETIME,
+                modified        DATETIME,
+                location        TEXT
             )",
         [],
     )?;

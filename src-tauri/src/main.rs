@@ -46,6 +46,8 @@ async fn save(data: String) -> Result<(), String> {
         };
     }
 
+    conn.close().unwrap();
+
     Ok(())
 }
 
@@ -55,6 +57,7 @@ async fn batch_delete(ids: String) -> Result<(), ()> {
 
     delete_data(&conn, ids).unwrap();
 
+    conn.close().unwrap();
     Ok(())
 }
 
@@ -74,6 +77,9 @@ async fn query(data: String) -> Result<String, String> {
     let json_str = serde_json::to_string(&pwd).unwrap();
 
     // println!("json_str: {}", json_str);
+
+    conn.close().unwrap();
+
     Ok(json_str)
 }
 
@@ -91,6 +97,8 @@ async fn decrypt_password(id: String) -> Result<String, ()> {
         Some(v) => v.password.clone(),
         None => String::from(""),
     };
+
+    conn.close().unwrap();
 
     println!("decrypt password id: {}", id);
     Ok(password)
