@@ -4,7 +4,7 @@ import { useSetState } from 'ahooks';
 
 export default function Collapse(props: any) {
   const [state, setState] = useSetState({
-    open: false,
+    open: !!props.defaultOpen,
   });
 
   const handleToggleOpen = () => {

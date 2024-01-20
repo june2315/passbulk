@@ -236,9 +236,14 @@ pub fn query_data(conn: &Connection, query: HashMap<String, String>) -> Result<V
     Ok(pwd_vec)
 }
 
-pub fn create_db() -> Result<Connection> {
-    // let conn = Connection::open("data.db")?;
+pub fn get_conn() -> Result<Connection> {
     let conn = Connection::open(get_db_path())?;
+    Ok(conn)
+}
+
+pub fn create_db(conn: &Connection) -> Result<()> {
+    // let conn = Connection::open("data.db")?;
+    // let conn = Connection::open(get_db_path())?;
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS password (
@@ -255,5 +260,5 @@ pub fn create_db() -> Result<Connection> {
         [],
     )?;
 
-    Ok(conn)
+    Ok(())
 }

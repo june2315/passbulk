@@ -3,14 +3,26 @@
 
 use paspio::entropy;
 use rand_pwd::RandPwd;
-use rusqlite::Result;
+use rusqlite::{Connection, Result};
 use serde_json::Value;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use tauri::State;
 
 mod db;
-use db::{create_db, delete_data, insert_data, query_data, update_data};
+use db::{
+    // create_db,
+    delete_data,
+    insert_data,
+    query_data,
+    update_data,
+};
 // use serde_json::Result;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+
+struct AppState {
+    db_conn: Arc<Mutex<Connection>>,
+}
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -18,17 +30,19 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn save(data: String) -> Result<(), String> {
+async fn save(state: State<'_, AppState>, data: String) -> Result<(), String> {
     println!("receive data: {}", data);
+    let conn = state.db_conn.lock().unwrap();
 
-    let conn = match create_db() {
-        Ok(v) => v,
-        Err(e) => return Err(e.to_string()),
-    };
+    // let conn = match create_db() {
+    //     Ok(v) => v,
+    //     Err(e) => return Err(e.to_string()),
+    // };
     // let deserialized: HashMap<String, PasswordVal> = match serde_json::from_str(&data) {
     //     Ok(v) => v,
     //     Err(e) => return Err(e.to_string()),
     // };
+
     let deserialized: Value = match serde_json::from_str(&data) {
         Ok(v) => v,
         Err(e) => return Err(e.to_string()),
@@ -46,25 +60,25 @@ async fn save(data: String) -> Result<(), String> {
         };
     }
 
-    conn.close().unwrap();
+    // conn.close().unwrap();
 
     Ok(())
 }
 
 #[tauri::command]
-async fn batch_delete(ids: String) -> Result<(), ()> {
-    let conn = create_db().unwrap();
-
+async fn batch_delete(state: State<'_, AppState>, ids: String) -> Result<(), ()> {
+    // let conn = create_db().unwrap();
+    let conn = state.db_conn.lock().unwrap();
     delete_data(&conn, ids).unwrap();
 
-    conn.close().unwrap();
+    // conn.close().unwrap();
     Ok(())
 }
 
 #[tauri::command]
-async fn query(data: String) -> Result<String, String> {
-    let conn = create_db().unwrap();
-
+async fn query(state: State<'_, AppState>, data: String) -> Result<String, String> {
+    // let conn = create_db().unwrap();
+    let conn = state.db_conn.lock().unwrap();
     // println!("data: {}", data);
 
     let deserialized: HashMap<String, String> = match serde_json::from_str(&data) {
@@ -78,14 +92,15 @@ async fn query(data: String) -> Result<String, String> {
 
     // println!("json_str: {}", json_str);
 
-    conn.close().unwrap();
+    // conn.close().unwrap();
 
     Ok(json_str)
 }
 
 #[tauri::command]
-async fn decrypt_password(id: String) -> Result<String, ()> {
-    let conn = create_db().unwrap();
+async fn decrypt_password(state: State<'_, AppState>, id: String) -> Result<String, ()> {
+    // let conn = create_db().unwrap();
+    let conn = state.db_conn.lock().unwrap();
 
     let mut query: HashMap<String, String> = HashMap::new();
 
@@ -98,7 +113,7 @@ async fn decrypt_password(id: String) -> Result<String, ()> {
         None => String::from(""),
     };
 
-    conn.close().unwrap();
+    // conn.close().unwrap();
 
     println!("decrypt password id: {}", id);
     Ok(password)
@@ -118,13 +133,19 @@ async fn password_entropy(password: String) -> Result<f64, ()> {
 }
 
 fn main() {
+    db::init();
+    let conn = db::get_conn().unwrap();
+    db::create_db(&conn).unwrap();
+    let state = AppState {
+        db_conn: Arc::new(Mutex::new(conn)),
+    };
     tauri::Builder::default()
         .setup(|_app| {
             // Initialize the database.
-            db::init();
 
             Ok(())
         })
+        .manage(state)
         .invoke_handler(tauri::generate_handler![
             greet,
             save,

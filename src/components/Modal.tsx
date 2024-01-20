@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import Button from './Button';
-import { useRef } from 'react';
+import { useRef, memo } from 'react';
 import type { MutableRefObject } from 'react';
 import { useDebounceEffect, useSetState, useUpdateEffect } from 'ahooks';
 import { modalCloseIcon } from './Icons';
@@ -86,7 +86,7 @@ function Modal(props: any) {
     >
       <div
         className={classNames(
-          'fixed inset-0 z-10 bg-zinc-700/60 transition-opacity duration-300 opacity-0 data-[open=true]:opacity-100 data-[leaving=true]:opacity-0'
+          'fixed inset-0 z-10 bg-zinc-700/60 transition-opacity duration-300 opacity-0 data-[open=true]:opacity-100 data-[leaving=true]:opacity-0 will-change-[opacity]'
         )}
         onClick={onClose}
         data-open={state.bgShow}
@@ -105,7 +105,7 @@ function Modal(props: any) {
             // `top-[${top}px]`,
             // `w-[${width}px]`,
             // `sm:max-w-[${width}px]`,
-            'relative mx-auto overflow-hidden rounded-sm bg-white dark:bg-neutral-800 dark:text-white shadow-xl'
+            'relative mx-auto overflow-hidden rounded-sm bg-white dark:bg-neutral-800 dark:text-white shadow-xl will-change-transform'
           )}
         >
           <div className="relative p-4 dark:bg-neutral-700">
@@ -140,4 +140,4 @@ function Modal(props: any) {
   );
 }
 
-export default Modal;
+export default memo(Modal);

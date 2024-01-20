@@ -42,7 +42,7 @@ export default function PasswordDetail(props) {
       </div>
 
       {/* content */}
-      <Collapse title="Information">
+      <Collapse title="Information" defaultOpen>
         123
       </Collapse>
     </div>
