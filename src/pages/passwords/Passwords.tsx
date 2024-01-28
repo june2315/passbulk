@@ -199,7 +199,6 @@ export default function Passwords() {
     setState({ infoActive });
   };
 
-  console.log('globalPasswordMap', globalPasswordMap);
   return (
     <div>
       <ActionBar
@@ -299,7 +298,16 @@ export default function Passwords() {
                   );
                 },
               },
-              { title: 'URI', dataIndex: 'uri', width: 200 },
+              {
+                title: 'URI',
+                dataIndex: 'uri',
+                width: 200,
+                render: (text) => (
+                  <a target="_blank" href={text} className="hover:text-sky-600">
+                    {text}
+                  </a>
+                ),
+              },
               {
                 title: 'Username',
                 dataIndex: 'username',

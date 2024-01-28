@@ -63,7 +63,7 @@ export default function PasswordDetail(props) {
             />,
           ]}
         </DualCols>
-        <DualCols>{['URI', data?.URI]}</DualCols>
+        <DualCols>{['URI', <a target='_blank' href={data?.uri} className="hover:text-sky-600">{data?.uri}</a>]}</DualCols>
         <DualCols>{['modified', data?.modified]}</DualCols>
         {/* <DualCols>{['modified By', data?.modifiedBy]}</DualCols> */}
         <DualCols>{['created', data?.created]}</DualCols>

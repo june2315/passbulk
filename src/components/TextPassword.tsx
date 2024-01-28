@@ -11,7 +11,7 @@ export default function TextPassword(props: any) {
           <span className="inline-block group/pwd font-bold tracking-tighter cursor-pointer hover:text-primary-red">
             {/* ﹡﹡﹡﹡﹡﹡ */}
             {Array.from({ length: 9 }).map(() => (
-              <i className="w-[9px] h-[9px] inline-block bg-white group-hover/pwd:bg-[#ff0000] mx-[2px] rounded-full"></i>
+              <i className="w-[9px] h-[9px] inline-block bg-white group-hover/pwd:bg-[#ff0000] mx-[2px] rounded-full transition-colors"></i>
             ))}
           </span>
         )}
