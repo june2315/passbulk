@@ -17,16 +17,16 @@ export default function Collapse(props: any) {
         className="flex justify-between items-center p-4 cursor-pointer"
         onClick={handleToggleOpen}
       >
-        <strong>{props.title}</strong>
+        <strong className="capitalize">{props.title}</strong>
         <i
-          className="text-base cursor-pointer transition-transform rotate-180 data-[open=true]:rotate-0"
+          className="text-lg cursor-pointer transition-transform rotate-180 data-[open=true]:rotate-0"
           data-open={state.open}
         >
           {arrowDownIcon}
         </i>
       </div>
       <div
-        className="dark:bg-neutral-800 h-0 p-4 py-0 transition-all overflow-hidden data-[open=true]:h-[revert] data-[open=true]:py-4"
+        className="dark:bg-neutral-800 h-0 p-4 py-0 transition-all overflow-hidden data-[open=true]:h-[revert] data-[open=true]:py-3"
         data-open={state.open}
       >
         {props.children}

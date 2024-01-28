@@ -16,14 +16,14 @@ import {
   uploadIcon,
   infoIcon,
   columnIcon,
-  eyeIcon,
-  eyeOff,
   sortDESC,
   sortASC,
 } from '@/components/Icons';
 import AddPassword from './AddPassword';
 import PasswordDetail from './Detail';
+import TextPassword from '@/components/TextPassword';
 import { copyPassword, deletePasswords, savePassword, queryPasswordList } from '@/api';
+import useStore from '@/store';
 
 import { useSetState, useUpdateEffect } from 'ahooks';
 // import { isEqual } from 'lodash-es';
@@ -32,7 +32,7 @@ import { useOutletContext } from 'react-router-dom';
 // import classNames from 'classnames';
 import type { PageState } from '@/interface';
 import classNames from 'classnames';
-import { log } from 'console';
+import triggerCopyPassword from '@/common/copyPassword';
 
 export default function Passwords() {
   const [pageState] = useOutletContext<PageState[]>();
@@ -45,7 +45,6 @@ export default function Passwords() {
     deleteLoading: false,
     selectedRowKeys: [],
     selectedDetail: null,
-    passwordMap: {},
     sortOrder: 'DESC',
     infoActive: false,
     dataSource: [
@@ -64,6 +63,9 @@ export default function Passwords() {
     ],
   });
 
+  const globalPasswordMap = useStore((state) => state.passwordMap);
+  const updatePasswordMap = useStore((state) => state.updatePasswordMap);
+
   function parseResponse(res: any) {
     try {
       return JSON.parse(res);
@@ -75,7 +77,7 @@ export default function Passwords() {
 
   function setParseResponse(res: any) {
     const dataSource = parseResponse(res);
-    console.log('dataSource', dataSource);
+    // console.log('dataSource', dataSource);
 
     if (dataSource) {
       setState({ dataSource });
@@ -178,30 +180,26 @@ export default function Passwords() {
     const record = state.dataSource.find((d: any) => state.selectedRowKeys.includes(d.id));
 
     if (!record) return;
-    copyPassword(record.id, state.passwordMap[record.id]).then(() => {
+    copyPassword(record.id, globalPasswordMap[record.id]).then(() => {
       Message.success('已复制到剪切板');
     });
   };
 
-  const handleCopyRecord = (record) => {
-    copyPassword(record.id, state.passwordMap[record.id]).then(() => {
-      Message.success('已复制到剪切板');
-    });
-  };
+  // const handleCopyRecord = (record) => {
+  //   copyPassword(record.id, globalPasswordMap[record.id]).then(() => {
+  //     Message.success('已复制到剪切板');
+  //   });
+  // };
 
-  const handleShowPassword = (record: any) => {
-    let { passwordMap } = state;
-
-    passwordMap[record.id] = passwordMap[record.id] ? null : record.password;
-
-    // console.log(passwordMap);
-    setState({ passwordMap });
-  };
+  // const handleShowPassword = (record: any) => {
+  //   updatePasswordMap(record);
+  // };
 
   const handleInfoChange = (infoActive: boolean) => {
     setState({ infoActive });
   };
 
+  console.log('globalPasswordMap', globalPasswordMap);
   return (
     <div>
       <ActionBar
@@ -225,7 +223,12 @@ export default function Passwords() {
           right: [
             <ButtonGroup key="extraRightBtn">
               <Dropdown icon={columnIcon} />
-              <ActiveButton key="info" icon={infoIcon} active={state.infoActive} onChange={handleInfoChange} />
+              <ActiveButton
+                key="info"
+                icon={infoIcon}
+                active={state.infoActive}
+                onChange={handleInfoChange}
+              />
             </ButtonGroup>,
           ],
         }}
@@ -285,32 +288,14 @@ export default function Passwords() {
                 dataIndex: 'password',
                 width: 200,
                 render: (text: any, record: any) => {
-                  const showPassword = state.passwordMap[record.id];
                   return (
-                    <div
-                      className="group flex space-x-3 items-center min-h-[22px]"
+                    <TextPassword
                       onClick={(e) => e.stopPropagation()}
-                    >
-                      <div
-                        onClick={() => handleCopyRecord(record)}
-                        className="text-base leading-none "
-                      >
-                        {showPassword ? (
-                          <span className="inline-block pointer-events-none">{text}</span>
-                        ) : (
-                          <span className="inline-block hover:text-primary-red font-bold tracking-tighter cursor-pointer">
-                            ﹡﹡﹡﹡﹡﹡
-                          </span>
-                        )}
-                      </div>
-
-                      <i
-                        className="cursor-pointer hover-icon-primary hidden group-hover:inline-block"
-                        onClick={() => handleShowPassword(record)}
-                      >
-                        {showPassword ? eyeOff : eyeIcon}
-                      </i>
-                    </div>
+                      value={text}
+                      visible={globalPasswordMap[record.id]}
+                      onCopy={() => triggerCopyPassword(record.id, globalPasswordMap[record.id])}
+                      onToggle={() => updatePasswordMap(record)}
+                    />
                   );
                 },
               },

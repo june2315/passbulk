@@ -142,7 +142,6 @@ fn main() {
     tauri::Builder::default()
         .setup(|_app| {
             // Initialize the database.
-
             Ok(())
         })
         .manage(state)
