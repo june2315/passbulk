@@ -25,7 +25,7 @@ export default function PasswordDetail(props) {
       ref={ref}
       className={classNames(
         { visible: open, hidden: !open },
-        'absolute top-0 right-0 bottom-0 w-[330px]  dark:bg-[#353535] shadow-[-5px_0_9px_0_rgba(0,0,0,0.5)]'
+        'absolute top-0 right-0 bottom-0 z-20 w-[330px]  dark:bg-[#353535] shadow-[-5px_0_9px_0_rgba(0,0,0,0.5)]'
       )}
     >
       {/* title */}

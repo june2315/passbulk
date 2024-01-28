@@ -86,7 +86,7 @@ function Modal(props: any) {
     >
       <div
         className={classNames(
-          'fixed inset-0 z-10 bg-zinc-700/60 transition-opacity duration-300 opacity-0 data-[open=true]:opacity-100 data-[leaving=true]:opacity-0 will-change-[opacity]'
+          'fixed inset-0 z-30 bg-zinc-700/60 transition-opacity duration-300 opacity-0 data-[open=true]:opacity-100 data-[leaving=true]:opacity-0 will-change-[opacity]'
         )}
         onClick={onClose}
         data-open={state.bgShow}
