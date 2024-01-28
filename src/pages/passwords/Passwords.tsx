@@ -26,12 +26,14 @@ import { copyPassword, deletePasswords, savePassword, queryPasswordList } from '
 import useStore from '@/store';
 
 import { useSetState, useUpdateEffect } from 'ahooks';
+
 // import { isEqual } from 'lodash-es';
 import { RefObject, useEffect, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { Scrollbars } from 'react-custom-scrollbars';
+import classNames from 'classnames';
 // import classNames from 'classnames';
 import type { PageState } from '@/interface';
-import classNames from 'classnames';
 import triggerCopyPassword from '@/common/copyPassword';
 
 export default function Passwords() {
@@ -47,6 +49,7 @@ export default function Passwords() {
     selectedDetail: null,
     sortOrder: 'DESC',
     infoActive: false,
+    listHeight: window.innerHeight - 178,
     dataSource: [
       // {
       //     id: 1,
@@ -96,6 +99,9 @@ export default function Passwords() {
     if (window.__TAURI__) {
       queryList();
     }
+    window.onresize = () => {
+      setState({ listHeight: window.innerHeight - 178 });
+    };
   }, []);
 
   useUpdateEffect(() => {
@@ -278,65 +284,70 @@ export default function Passwords() {
         />
         <main className="flex-1 relative overflow-y-hidden h-[calc(100vh-178px)]">
           <BreadCrumb />
-
-          <Table
-            columns={[
-              { title: 'Name', dataIndex: 'name', width: 200 },
-              {
-                title: 'Password',
-                dataIndex: 'password',
-                width: 200,
-                render: (text: any, record: any) => {
-                  return (
-                    <TextPassword
-                      onClick={(e) => e.stopPropagation()}
-                      value={text}
-                      visible={globalPasswordMap[record.id]}
-                      onCopy={() => triggerCopyPassword(record.id, globalPasswordMap[record.id])}
-                      onToggle={() => updatePasswordMap(record)}
-                    />
-                  );
+          <Scrollbars
+            autoHide
+            style={{ height: state.listHeight }}
+            // renderThumbHorizontal={() => <div></div>}
+            // renderTrackHorizontal={() => <div></div>}
+          >
+            <Table
+              columns={[
+                { title: 'Name', dataIndex: 'name', width: 200 },
+                {
+                  title: 'Password',
+                  dataIndex: 'password',
+                  width: 200,
+                  render: (text: any, record: any) => {
+                    return (
+                      <TextPassword
+                        onClick={(e) => e.stopPropagation()}
+                        value={text}
+                        visible={globalPasswordMap[record.id]}
+                        onCopy={() => triggerCopyPassword(record.id, globalPasswordMap[record.id])}
+                        onToggle={() => updatePasswordMap(record)}
+                      />
+                    );
+                  },
                 },
-              },
-              {
-                title: 'URI',
-                dataIndex: 'uri',
-                width: 200,
-                render: (text) => (
-                  <a target="_blank" href={text} className="hover:text-sky-600">
-                    {text}
-                  </a>
-                ),
-              },
-              {
-                title: 'Username',
-                dataIndex: 'username',
-                width: 180,
-              },
-              {
-                title: (
-                  <div
-                    className={classNames('cursor-pointer flex space-x-2 items-center')}
-                    onClick={handleToggleSort}
-                  >
-                    <span>Modified</span>
-                    {state.sortOrder === 'DESC' ? sortDESC : sortASC}
-                  </div>
-                ),
-                dataIndex: 'modified',
-                width: 200,
-              },
-            ]}
-            rowSelection={{
-              selectedRowKeys: state.selectedRowKeys,
-              onChange: handleRowChange,
-              onSelect: handleRowSelect,
-            }}
-            contextMenu={{}}
-            dataSource={state.dataSource}
-            // dataSource={[]}
-          />
-
+                {
+                  title: 'URI',
+                  dataIndex: 'uri',
+                  width: 200,
+                  render: (text) => (
+                    <a target="_blank" href={text} className="hover:text-sky-600">
+                      {text}
+                    </a>
+                  ),
+                },
+                {
+                  title: 'Username',
+                  dataIndex: 'username',
+                  width: 180,
+                },
+                {
+                  title: (
+                    <div
+                      className={classNames('cursor-pointer flex space-x-2 items-center')}
+                      onClick={handleToggleSort}
+                    >
+                      <span>Modified</span>
+                      {state.sortOrder === 'DESC' ? sortDESC : sortASC}
+                    </div>
+                  ),
+                  dataIndex: 'modified',
+                  width: 200,
+                },
+              ]}
+              rowSelection={{
+                selectedRowKeys: state.selectedRowKeys,
+                onChange: handleRowChange,
+                onSelect: handleRowSelect,
+              }}
+              contextMenu={{}}
+              dataSource={state.dataSource}
+              // dataSource={[]}
+            />
+          </Scrollbars>
           <PasswordDetail
             open={state.selectedDetail && state.infoActive}
             onClose={() => setState({ infoActive: false })}

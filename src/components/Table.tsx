@@ -72,7 +72,7 @@ export default function Table(props: any) {
   return (
     <div className="w-full">
       <table className="table-fixed w-full border-collapse bg-white text-left text-sm text-gray-500 dark:bg-neutral-900 dark:text-white">
-        <thead className="bg-gray-50 dark:bg-[#3B3B3B] dark:text-white">
+        <thead className="bg-gray-50 dark:bg-[#3B3B3B] dark:text-white sticky top-0 z-10">
           <tr className="font-semibold">
             {rowSelection ? (
               <th scope="col" className="px-4 py-4 " style={{ width: 30 }}>

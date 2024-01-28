@@ -32,6 +32,13 @@ pub fn init() {
     }
 }
 
+fn is_production() -> bool {
+    match std::env::var("NODE_ENV") {
+        Ok(val) => val == "production",
+        Err(_) => false,
+    }
+}
+
 // Create the database file.
 fn create_db_file() {
     let db_path = get_db_path();
@@ -53,8 +60,12 @@ fn db_file_exists() -> bool {
 
 fn get_db_path() -> String {
     let home_dir = dirs::home_dir().unwrap();
-    // home_dir.to_str().unwrap().to_string() + "/.config/passbulk/database.sqlite"
-    home_dir.to_str().unwrap().to_string() + "/.config/passbulk/test.sqlite"
+    let db_file = if is_production() {
+        "/.config/passbulk/database.sqlite"
+    } else {
+        "/.config/passbulk/test.sqlite"
+    };
+    home_dir.to_str().unwrap().to_string() + db_file
 }
 
 pub fn insert_data(conn: &Connection, deserialized: Value) -> Result<()> {
