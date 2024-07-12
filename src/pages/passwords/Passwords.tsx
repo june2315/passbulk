@@ -127,8 +127,10 @@ export default function Passwords() {
       .then(
         () =>
           new Promise<void>((resolve) => {
-            queryList();
-            setTimeout(resolve, 300);
+            setTimeout(() => {
+              resolve();
+              queryList();
+            }, 300);
           })
       )
       .catch((error) => {
@@ -313,11 +315,11 @@ export default function Passwords() {
                   title: 'URI',
                   dataIndex: 'uri',
                   width: 200,
-                  render: (text) => (
-                    <a target="_blank" href={text} className="hover:text-sky-600">
-                      {text}
-                    </a>
-                  ),
+                  // render: (text) => (
+                  //   <a target="_blank" href={text} className="hover:text-sky-600">
+                  //     {text}
+                  //   </a>
+                  // ),
                 },
                 {
                   title: 'Username',

@@ -1,53 +1,53 @@
 {
-    "build": {
-        "beforeDevCommand": "pnpm dev",
-        "beforeBuildCommand": "pnpm build",
-        "devPath": "http://localhost:1420",
-        "distDir": "../dist",
-        "withGlobalTauri": false
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "Passbulk",
+    "version": "0.0.1"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "clipboard": {
+        "writeText": true
+      },
+      "fs": {
+        "all": true
+      }
     },
-    "package": {
-        "productName": "Passbulk",
-        "version": "0.0.1"
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.june.dev",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ]
     },
-    "tauri": {
-        "allowlist": {
-            "all": false,
-            "shell": {
-                "all": false,
-                "open": true
-            },
-            "clipboard": {
-                "writeText": true
-            },
-            "fs": {
-                "all": true
-            }
-        },
-        "bundle": {
-            "active": true,
-            "targets": "all",
-            "identifier": "com.june.dev",
-            "icon": [
-                "icons/32x32.png",
-                "icons/128x128.png",
-                "icons/128x128@2x.png",
-                "icons/icon.icns",
-                "icons/icon.ico"
-            ]
-        },
-        "security": {
-            "csp": null
-        },
-        "windows": [
-            {
-                "fullscreen": false,
-                "theme": "Dark",
-                "resizable": true,
-                "title": "passbulk",
-                "width": 1368,
-                "height": 800
-            }
-        ]
-    }
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "theme": "Dark",
+        "resizable": true,
+        "title": "passbulk",
+        "width": 1368,
+        "height": 800
+      }
+    ]
+  }
 }

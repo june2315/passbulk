@@ -168,7 +168,7 @@ export default function Header(props) {
                     </div>
                     <div
                         className={classNames(
-                            'absolute bg-zinc-900 w-full shadow-md py-1 z-10',
+                            'absolute bg-zinc-900 w-full shadow-md py-1 z-30',
                             state.infoOpen ? 'block' : 'hidden'
                         )}
                     >

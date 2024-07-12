@@ -89,7 +89,7 @@ export default function Dropdown(props: any) {
             <div
                 ref={dropdownRef}
                 className={classNames(
-                    'absolute bg-[#363639] shadow-md py-1 z-10',
+                    'absolute bg-[#363639] shadow-md py-1 z-20',
                     'top-[100%] border border-zinc-950/50 min-w-full rounded-md ',
                     state.isOverScreen
                         ? 'right-0 rounded-tr-none'

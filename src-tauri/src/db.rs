@@ -3,15 +3,18 @@ use rusqlite::{named_params, params, Connection, Error, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
+// use std::env;
 use std::fs;
 use std::path::Path;
 
+// static IS_PRODUCTION: bool = false;
 // #[derive(Serialize, Deserialize, Debug)]
 // pub enum PasswordVal {
 //     Int(i32),
 //     String,
 // }
-
+static DEV_DB_PATH: &str = "/.config/passbulk/test.sqlite";
+static PROD_DB_PATH: &str = "/.config/passbulk/database.sqlite";
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Password {
     id: i32,
@@ -29,13 +32,6 @@ pub struct Password {
 pub fn init() {
     if !db_file_exists() {
         create_db_file();
-    }
-}
-
-fn is_production() -> bool {
-    match std::env::var("NODE_ENV") {
-        Ok(val) => val == "production",
-        Err(_) => false,
     }
 }
 
@@ -59,13 +55,14 @@ fn db_file_exists() -> bool {
 }
 
 fn get_db_path() -> String {
-    let home_dir = dirs::home_dir().unwrap();
-    let db_file = if is_production() {
-        "/.config/passbulk/database.sqlite"
-    } else {
-        "/.config/passbulk/test.sqlite"
-    };
+    let home_dir: std::path::PathBuf = dirs::home_dir().unwrap();
+    // let is_dev: bool = is_development(); 
+    let is_dev: bool = !cfg!(feature = "custom-protocol");
+    // let is_dev: bool = tauri::Manager::env();
+
+    let db_file = if is_dev { DEV_DB_PATH } else { PROD_DB_PATH };
     home_dir.to_str().unwrap().to_string() + db_file
+    // home_dir.to_str().unwrap().to_string() + "/.config/passbulk/database.sqlite"
 }
 
 pub fn insert_data(conn: &Connection, deserialized: Value) -> Result<()> {

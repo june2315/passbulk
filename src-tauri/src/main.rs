@@ -78,6 +78,7 @@ async fn batch_delete(state: State<'_, AppState>, ids: String) -> Result<(), ()>
 #[tauri::command]
 async fn query(state: State<'_, AppState>, data: String) -> Result<String, String> {
     // let conn = create_db().unwrap();
+    
     let conn = state.db_conn.lock().unwrap();
     // println!("data: {}", data);
 

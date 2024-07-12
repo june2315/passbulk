@@ -4,6 +4,13 @@
 
 :root {
   min-height: 100vh;
+  overflow: hidden;
+}
+
+:root,
+html,
+body {
+  background-color: #171717;
 }
 
 .hover-icon-primary:hover svg path {
